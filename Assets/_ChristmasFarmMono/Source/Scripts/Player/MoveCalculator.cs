@@ -12,6 +12,11 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         // Нужно сделать по чище
         internal Vector3 Move(Vector2 velocity, Transform directTransform, float speed, float deltaTime)
         {
+            if (velocity.magnitude < 0.0001f)
+            {
+                return Vector3.zero;
+            }
+            
             _currentVelocity = Vector2.SmoothDamp(_currentVelocity, velocity, ref _smoothInputVelocity, .05f);
 
             var moveSpeed = speed * deltaTime;
