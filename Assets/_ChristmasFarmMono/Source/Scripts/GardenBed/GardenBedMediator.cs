@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using _ChristmasFarmMono.Source.Scripts.Items;
+using UnityEngine;
 
 namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 {
@@ -6,23 +7,30 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
     {
         public void Interact();
     }
-
+    
     public interface ISelectable
     {
         public void Select();
         public void DropSelect();
     }
     
-    public class GardenBedMediator : MonoBehaviour, IInteractive, ISelectable
+    public sealed class GardenBedMediator : MonoBehaviour, IInteractive, ISelectable
     {
+        [SerializeField] private AnyIdentifier identifier;
         private Material _materialVariant;
-        
-        private readonly int OutlineWidth = Shader.PropertyToID("_OutlineWidth");
-        private readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 
-        private void Awake()
+        private GardenBedsController _gardenBedsController;
+        
+        private static readonly int OutlineWidth = Shader.PropertyToID("_OutlineWidth");
+        private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
+
+        public string Identifier => identifier.Id;
+
+        public void Initialize(GardenBedsController gardenBedsController)
         {
             _materialVariant = GetComponent<MeshRenderer>().material;
+
+            _gardenBedsController = gardenBedsController;
         }
 
 
@@ -40,7 +48,8 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         public void Interact()
         {
-            
+            Debug.Log($"GardenBed {Identifier} interact");
+            _gardenBedsController.Interactive(Identifier);
         }
     }
 }

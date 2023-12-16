@@ -3,9 +3,9 @@
 namespace _ChristmasFarmMono.Source.Scripts.Items
 {
     [CreateAssetMenu(menuName = "ChristmasFarm / Items / Item View UI", order = 2)]
-    public class ItemViewUI : ScriptableObject, IItem
+    public sealed class ItemViewUI : ScriptableObject, IItem
     {
-        [SerializeField] private ItemIdentifier identifier;
+        [SerializeField] private AnyIdentifier identifier;
         
         [field: SerializeField] public Sprite ItemSprite { get; private set; }
         

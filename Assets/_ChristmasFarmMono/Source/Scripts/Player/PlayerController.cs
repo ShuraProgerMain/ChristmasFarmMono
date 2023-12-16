@@ -1,6 +1,7 @@
 using _ChristmasFarmMono.Source.Scripts.Extensions;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace _ChristmasFarmMono.Source.Scripts.Player
 {
@@ -16,7 +17,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         private MoveCalculator _moveCalculator;
         private GameplayActions _gameplayActions;
-        private IInteractive _currentGardenBed;
+        private IInteractive _currentInteractObject;
         
         private readonly int _speed = Animator.StringToHash("Speed");
 
@@ -24,6 +25,8 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         {
             _moveCalculator = new MoveCalculator();
             _gameplayActions = new GameplayActions();
+
+            _gameplayActions.Character.Interact.performed += Interact;
 
             collisionDetector.TriggerEnter += OnTriggerEnterCustom;
             collisionDetector.TriggerExit += OnTriggerExitCustom;
@@ -42,15 +45,12 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         private void OnTriggerEnterCustom(Collider other)
         {
-            if (_currentGardenBed is not null)
-            {
-                _currentGardenBed.TryDropSelect();
-            }
-            
+            _currentInteractObject?.TryDropSelect();
+
             if (other.TryGetComponent(out IInteractive gardenBedMediator))
             {
-                _currentGardenBed = gardenBedMediator;
-                _currentGardenBed.TrySelect();
+                _currentInteractObject = gardenBedMediator;
+                _currentInteractObject.TrySelect();
             }
         }
 
@@ -70,6 +70,12 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
             viewTransform.rotation = _moveCalculator.SmoothRotation(moveDirection, viewTransform.rotation, rotateSpeed * Time.deltaTime);
             
             animator.SetFloat(_speed, moveDirection.magnitude);
+        }
+
+        private void Interact(InputAction.CallbackContext context)
+        {
+            Debug.Log("Player interact");
+            _currentInteractObject?.Interact();
         }
 
         private void OnDisable()

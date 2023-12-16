@@ -1,4 +1,6 @@
-﻿using _ChristmasFarmMono.Source.Scripts.GardenBed;
+﻿using System;
+using System.ComponentModel.Design;
+using _ChristmasFarmMono.Source.Scripts.GardenBed;
 
 namespace _ChristmasFarmMono.Source.Scripts.Extensions
 {
@@ -19,6 +21,17 @@ namespace _ChristmasFarmMono.Source.Scripts.Extensions
             {
                 selectable.DropSelect();
             }
+            return origin;
+        }
+    }
+
+    public static class WithExtensions
+    {
+        public static T With<T>(this T origin, Action action, bool when)
+        {
+            if (when)
+                action?.Invoke();
+            
             return origin;
         }
     }
