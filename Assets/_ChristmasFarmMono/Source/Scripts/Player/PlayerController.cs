@@ -1,8 +1,6 @@
-using System;
+using _ChristmasFarmMono.Source.Scripts.Extensions;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace _ChristmasFarmMono.Source.Scripts.Player
 {
@@ -18,7 +16,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         private MoveCalculator _moveCalculator;
         private GameplayActions _gameplayActions;
-        private IInteractable _currentGardenBed;
+        private IInteractive _currentGardenBed;
         
         private readonly int _speed = Animator.StringToHash("Speed");
 
@@ -49,7 +47,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
                 _currentGardenBed.TryDropSelect();
             }
             
-            if (other.TryGetComponent(out IInteractable gardenBedMediator))
+            if (other.TryGetComponent(out IInteractive gardenBedMediator))
             {
                 _currentGardenBed = gardenBedMediator;
                 _currentGardenBed.TrySelect();
@@ -58,7 +56,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         private void OnTriggerExitCustom(Collider other)
         {
-            if (other.TryGetComponent(out IInteractable gardenBedMediator))
+            if (other.TryGetComponent(out IInteractive gardenBedMediator))
             {
                 gardenBedMediator.TryDropSelect();
             }
@@ -78,27 +76,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         {
             _gameplayActions.Disable();
             _gameplayActions.Dispose();
-        }
-    }
-
-    public static class TryExtension
-    {
-        public static T TrySelect<T>(this T origin)
-        {
-            if (origin is ISelectable selectable)
-            {
-                selectable.Select();
-            }
-            return origin;
-        }
-        
-        public static T TryDropSelect<T>(this T origin)
-        {
-            if (origin is ISelectable selectable)
-            {
-                selectable.DropSelect();
-            }
-            return origin;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 {
-    public interface IInteractable
+    public interface IInteractive
     {
         public void Interact();
     }
@@ -13,7 +13,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         public void DropSelect();
     }
     
-    public class GardenBedMediator : MonoBehaviour, IInteractable, ISelectable
+    public class GardenBedMediator : MonoBehaviour, IInteractive, ISelectable
     {
         private Material _materialVariant;
         
