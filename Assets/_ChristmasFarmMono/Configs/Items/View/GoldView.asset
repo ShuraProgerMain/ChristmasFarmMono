@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: GoldView
   m_EditorClassIdentifier: 
   identifier: {fileID: 11400000, guid: e7ef6400140396c4ebf1406a0f577168, type: 2}
-  <ItemPrefab>k__BackingField: {fileID: 0}
+  <ItemPrefab>k__BackingField: {fileID: 926279252687323741, guid: dcb2c399959175a4ba6f706b8434b6c8,
+    type: 3}

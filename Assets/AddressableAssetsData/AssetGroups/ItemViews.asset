@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ItemViews
+  m_EditorClassIdentifier: 
+  m_GroupName: ItemViews
+  m_Data:
+    m_SerializedData: []
+  m_GUID: b05d5a10d4b0df845a7688a8a5641e8f
+  m_SerializeEntries:
+  - m_GUID: 8834345c843e63f40beace2f8f530148
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/View/AppleView.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 82b519efe0cdc8d4fa3e060fdd01c0f3
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/View/GoldView.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2f3ae975a2d7bcd4bba6aad8d53cc257
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/ViewUI/AppleViewUI.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 75b7969c1cb42284cb4e9e2d68592d51
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/ViewUI/GoldViewUI.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: cf96c845399a8e54a8518229929e65c6, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 64c179fa4fa2f4645955e8720e29feb1, type: 2}
+    - {fileID: 11400000, guid: 0dc4e47d4d0a7504f83dc60b92c49b27, type: 2}
