@@ -1,4 +1,5 @@
 ﻿using _ChristmasFarmMono.Source.Scripts.Items;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace _ChristmasFarmMono.Source.Scripts.GardenBed
@@ -20,6 +21,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         private Material _materialVariant;
 
         private GardenBedsController _gardenBedsController;
+        private GameObject _currentPlantItem;
         
         private static readonly int OutlineWidth = Shader.PropertyToID("_OutlineWidth");
         private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
@@ -33,6 +35,17 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
             _gardenBedsController = gardenBedsController;
         }
 
+        public void SetItem(GameObject item)
+        {
+            _currentPlantItem = Instantiate(item, transform.position, 
+                quaternion.identity);
+            _currentPlantItem.transform.SetParent(transform);
+        }
+        
+        public void ClearGardenBed()
+        {
+            Destroy(_currentPlantItem);
+        }
 
         public void Select()
         {

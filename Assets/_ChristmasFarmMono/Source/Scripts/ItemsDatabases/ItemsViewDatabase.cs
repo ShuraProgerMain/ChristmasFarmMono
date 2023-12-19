@@ -20,6 +20,11 @@ namespace _ChristmasFarmMono.Source.Scripts.ItemsDatabases
                 _itemViews = handle.Result.ToDictionary(x => x.Identifier);
             };
         }
+        
+        public GameObject GetGameObject(string identifier)
+        {
+            return _itemViews[identifier].ItemPrefab;
+        }
     }
 
     public sealed class ItemsViewUIDatabase
@@ -37,9 +42,9 @@ namespace _ChristmasFarmMono.Source.Scripts.ItemsDatabases
             };
         }
 
-        public Sprite GetSprite(int index)
+        public Sprite GetSprite(string identifier)
         {
-            return _itemViewUis.First().Value.ItemSprite;
+            return _itemViewUis[identifier].ItemSprite;
         }
     }
 }

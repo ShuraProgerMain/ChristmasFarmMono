@@ -7,21 +7,17 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
     {
         private Vector2 _smoothInputVelocity;
         private Vector2 _currentVelocity;
-        private Vector2 _currentDashVelocity;
+
+        public Vector2 CurrentVelocity => _currentVelocity;
 
         // Нужно сделать по чище
         internal Vector3 Move(Vector2 velocity, Transform directTransform, float speed, float deltaTime)
         {
-            if (velocity.magnitude < 0.0001f)
-            {
-                return Vector3.zero;
-            }
-            
-            _currentVelocity = Vector2.SmoothDamp(_currentVelocity, velocity, ref _smoothInputVelocity, .05f);
+            _currentVelocity = Vector2.SmoothDamp(CurrentVelocity, velocity, ref _smoothInputVelocity, .05f);
 
             var moveSpeed = speed * deltaTime;
-            var newPosition = (directTransform.forward * (_currentVelocity.y * moveSpeed)) +
-                              (directTransform.right * (_currentVelocity.x * moveSpeed));
+            var newPosition = (directTransform.forward * (CurrentVelocity.y * moveSpeed)) +
+                              (directTransform.right * (CurrentVelocity.x * moveSpeed));
             newPosition.y = 0;
 
             return newPosition;

@@ -59,6 +59,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
             if (other.TryGetComponent(out IInteractive gardenBedMediator))
             {
                 gardenBedMediator.TryDropSelect();
+                _currentInteractObject = null;
             }
         }
 
@@ -69,7 +70,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
                         
             viewTransform.rotation = _moveCalculator.SmoothRotation(moveDirection, viewTransform.rotation, rotateSpeed * Time.deltaTime);
             
-            animator.SetFloat(_speed, moveDirection.magnitude);
+            animator.SetFloat(_speed, _moveCalculator.CurrentVelocity.magnitude);
         }
 
         private void Interact(InputAction.CallbackContext context)

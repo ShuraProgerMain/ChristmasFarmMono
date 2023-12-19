@@ -1,5 +1,8 @@
-using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 using _ChristmasFarmMono.Source.Scripts.ItemsDatabases;
+using JetBrains.Annotations;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VContainer;
@@ -11,9 +14,18 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
         [SerializeField] private UIDocument uiDocument;
         [SerializeField] private VisualTreeAsset itemCell;
 
+        private VisualElement _container;
         private VisualElement _itemsHolder;
 
-        private ItemsViewUIDatabase _itemsViewUIDatabase;
+        private Action _onOkMouseDown;
+        [CanBeNull] private ItemsViewUIDatabase _itemsViewUIDatabase;
+        private readonly Dictionary<string, TemplateContainer> _instantiatedCells = new ();
+
+        private readonly ItemCellViewParameters _defaultCellParameters = new()
+        {
+            ItemSpriteSize = new int2(50, 50),
+            ItemFontSize = 10
+        };
         
         [Inject]
         private void Constructor(ItemsViewUIDatabase itemsViewUIDatabase)
@@ -23,33 +35,79 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
         
         private void OnEnable()
         {
+            _container = uiDocument.rootVisualElement.Q<VisualElement>("Container");
+            _container.Q<VisualElement>("Button").RegisterCallback<MouseDownEvent>(OnOkButtonDown);
             _itemsHolder = uiDocument.rootVisualElement.Q<VisualElement>("ItemsHolder");
         }
 
-        private async void Start()
+        public void ShowItemsHolder(IReadOnlyList<string>? itemsIds, string textValue, 
+            ItemCellViewParameters? viewParameters, Action<string> onItemMouseDown, Action onOkMouseDown)
         {
-            await Task.Delay(2000);
-            ShowItemsHolder();
-        }
-
-        public void ShowItemsHolder()
-        {
-            for (int i = 0; i < 2; i++)
+            ClearHolder();
+            
+            _onOkMouseDown = onOkMouseDown;
+            foreach (var itemsId in itemsIds)
             {
-                SetCell(_itemsViewUIDatabase.GetSprite(0), $"{i} / 10");
+                var cell = GetCellInstance(_itemsViewUIDatabase?.GetSprite(itemsId), textValue, viewParameters);
+                _instantiatedCells.Add(itemsId, cell); 
+                cell.RegisterCallback<MouseDownEvent>(_ => onItemMouseDown?.Invoke(itemsId));
             }
+
+            _container.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
         }
 
-        private void SetCell(Sprite sprite, string text)
+        public void UpdateItemText(string itemId, string text)
         {
+            _instantiatedCells[itemId].Q<Label>("Count").text = text;
+        }
+
+        public void SelectItem(string itemIds)
+        {
+            var cell = _instantiatedCells[itemIds];
+            cell.Q<Label>("Count").style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
+            cell.Q<VisualElement>("Check").style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+        }
+        
+        public void UnselectItem(string itemIds)
+        {
+            var cell = _instantiatedCells[itemIds];
+            cell.Q<Label>("Count").style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+            cell.Q<VisualElement>("Check").style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
+        }
+
+        private void OnOkButtonDown(MouseDownEvent mouseDownEvent)
+        {
+            _onOkMouseDown?.Invoke();
+            ClearHolder();
+        }
+
+        private TemplateContainer GetCellInstance(Sprite sprite, string text, ItemCellViewParameters? viewParameters)
+        {
+            viewParameters ??= _defaultCellParameters;
+            
             var cell = itemCell.Instantiate();
             var cellSprite = cell.Q<VisualElement>("Sprite");
             var cellCount = cell.Q<Label>("Count");
+            
 
             cellSprite.style.backgroundImage = new StyleBackground(sprite);
+            cellSprite.style.width = new StyleLength(viewParameters.Value.ItemSpriteSize.x);
+            cellSprite.style.maxWidth = new StyleLength(viewParameters.Value.ItemSpriteSize.x);
+            cellSprite.style.height = new StyleLength(viewParameters.Value.ItemSpriteSize.y);
+            cellSprite.style.maxHeight = new StyleLength(viewParameters.Value.ItemSpriteSize.y);
             cellCount.text = text;
+            cellCount.style.fontSize = new StyleLength(viewParameters.Value.ItemFontSize);
             
             _itemsHolder.Add(cell);
+
+            return cell;
+        }
+
+        private void ClearHolder()
+        {
+            _itemsHolder.Clear();
+            _instantiatedCells.Clear();
+            _container.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
         }
     }
 }

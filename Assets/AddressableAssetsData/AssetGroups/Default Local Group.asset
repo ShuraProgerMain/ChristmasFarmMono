@@ -16,7 +16,12 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 57f2fec2a1764594f845f5e1971a01cc
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: f031be354f1953f47aebb07aade58e72
+    m_Address: Assets/_ChristmasFarmMono/Configs/GardenBeds/Harvest/HarvestConfig_Default.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: cf96c845399a8e54a8518229929e65c6, type: 2}
   m_SchemaSet:

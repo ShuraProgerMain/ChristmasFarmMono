@@ -1412,6 +1412,12 @@ MonoBehaviour:
   itemsForPlanting:
   - {fileID: 11400000, guid: e7ef6400140396c4ebf1406a0f577168, type: 2}
   - {fileID: 11400000, guid: 9534fe87e5f867f499cf02c6611c7dd9, type: 2}
+  itemsHolderView: {fileID: 334411696}
+  harvestConfigReference:
+    m_AssetGUID: f031be354f1953f47aebb07aade58e72
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
 --- !u!114 &1440480486 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -674370394154129711, guid: be7b338929e1d244dadf79d218bd1a92,
@@ -1471,7 +1477,9 @@ MonoBehaviour:
   parentReference:
     TypeName: 
   autoRun: 1
-  autoInjectGameObjects: []
+  autoInjectGameObjects:
+  - {fileID: 1437921824}
+  - {fileID: 334411695}
 --- !u!114 &1520948354 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -674370394154129711, guid: be7b338929e1d244dadf79d218bd1a92,
