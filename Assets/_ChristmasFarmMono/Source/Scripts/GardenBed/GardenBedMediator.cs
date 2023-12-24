@@ -4,17 +4,6 @@ using UnityEngine;
 
 namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 {
-    public interface IInteractive
-    {
-        public void Interact();
-    }
-    
-    public interface ISelectable
-    {
-        public void Select();
-        public void DropSelect();
-    }
-    
     public sealed class GardenBedMediator : MonoBehaviour, IInteractive, ISelectable
     {
         [SerializeField] private AnyIdentifier identifier;
@@ -61,7 +50,6 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         public void Interact()
         {
-            Debug.Log($"GardenBed {Identifier} interact");
             _gardenBedsController.Interactive(Identifier);
         }
     }

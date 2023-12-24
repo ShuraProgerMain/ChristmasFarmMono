@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using _ChristmasFarmMono.Source.Scripts.Extensions;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
 using UnityEngine;
@@ -5,7 +7,19 @@ using UnityEngine.InputSystem;
 
 namespace _ChristmasFarmMono.Source.Scripts.Player
 {
-    public class PlayerController : MonoBehaviour
+    public readonly struct PlayerInteractiveActions
+    {
+        public readonly string InteractiveActionIdentifier;
+        public readonly Func<Task> IntermediateAction;
+
+        public PlayerInteractiveActions(string interactiveActionIdentifier, Func<Task> intermediateAction)
+        {
+            InteractiveActionIdentifier = interactiveActionIdentifier;
+            IntermediateAction = intermediateAction;
+        }
+    }
+
+    public sealed class PlayerController : MonoBehaviour
     {
         [SerializeField] private float moveSpeed = 1f;
         [SerializeField] private float rotateSpeed = 50f;
@@ -42,7 +56,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
             Move(_gameplayActions.Character.Movement.ReadValue<Vector2>());
         }
 
-
         private void OnTriggerEnterCustom(Collider other)
         {
             _currentInteractObject?.TryDropSelect();
@@ -58,8 +71,10 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         {
             if (other.TryGetComponent(out IInteractive gardenBedMediator))
             {
+                if (gardenBedMediator == _currentInteractObject)
+                    _currentInteractObject = null;
+                
                 gardenBedMediator.TryDropSelect();
-                _currentInteractObject = null;
             }
         }
 
@@ -75,7 +90,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         private void Interact(InputAction.CallbackContext context)
         {
-            Debug.Log("Player interact");
             _currentInteractObject?.Interact();
         }
 

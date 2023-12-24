@@ -43,6 +43,15 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         [Inject]
         private void Construct(ItemsViewDatabase itemsViewDatabase, InventoryController inventoryController)
         {
+            _gardenBedStates = new Dictionary<string, GardenBedState>();
+            
+            foreach (var bed in gardenBeds)
+            {
+                bed.Initialize(this);
+                _gardenBedStates.Add(bed.Identifier, 
+                    new GardenBedState { Identifier = bed.Identifier, InteractiveState = InteractiveState.Input });
+            }
+            
             var harvestConfig = harvestConfigReference.LoadAssetAsync().WaitForCompletion();
 
             _harvestAmounts = harvestConfig.HarvestAmounts.ToDictionary(k => k.First.Id, 
@@ -57,23 +66,8 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
             _gardenBedProduction = new GardenBedProduction(itemsHolderView, itemsViewDatabase);
             _gardenBedOutput = new GardenBedOutput(itemsHolderView);
             _inventoryController = inventoryController;
-            
-            
         }
         
-        private void Awake()
-        {
-            _gardenBedStates = new Dictionary<string, GardenBedState>();
-            
-            foreach (var bed in gardenBeds)
-            {
-                bed.Initialize(this);
-                _gardenBedStates.Add(bed.Identifier, 
-                    new GardenBedState { Identifier = bed.Identifier, InteractiveState = InteractiveState.Input });
-            }
-
-        }
-
         public void Interactive(string identifier)
         {
             if (!_gardenBedStates.TryGetValue(identifier, out var gardenBedState)) return;

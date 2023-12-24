@@ -588,6 +588,7 @@ Transform:
   m_Children:
   - {fileID: 1497397097}
   - {fileID: 1437921825}
+  - {fileID: 1152420585}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
@@ -875,6 +876,18 @@ Transform:
   - {fileID: 791405801}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 25, y: 0, z: 0}
+--- !u!114 &766541685 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 572234995277434727, guid: bbea8a8592ca58f4d9dab25145cd8872,
+    type: 3}
+  m_PrefabInstance: {fileID: 4819473532841743209}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93568dea2fd602a49a2cf6fa59f3366b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &780628696
 GameObject:
   m_ObjectHideFlags: 0
@@ -1255,6 +1268,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bae9e2e109d45db961ea2cd7523d313, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1152420584
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1152420585}
+  - component: {fileID: 1152420586}
+  m_Layer: 0
+  m_Name: FirTreesController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1152420585
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152420584}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 385805099}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1152420586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152420584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5d7884273444da6826f96342c28eba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  woodItemId: {fileID: 11400000, guid: 432f62c65864cdb4297730c5bd2571e2, type: 2}
+  identifierTemplate: {fileID: 11400000, guid: 70d5aeee65c02fc4ca718b6f11a8faea, type: 2}
+  firTrees:
+  - {fileID: 766541685}
 --- !u!1001 &1159893270
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1480,6 +1541,7 @@ MonoBehaviour:
   autoInjectGameObjects:
   - {fileID: 1437921824}
   - {fileID: 334411695}
+  - {fileID: 1152420584}
 --- !u!114 &1520948354 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: -674370394154129711, guid: be7b338929e1d244dadf79d218bd1a92,
@@ -1899,7 +1961,7 @@ PrefabInstance:
     - target: {fileID: 7054012349661152021, guid: bbea8a8592ca58f4d9dab25145cd8872,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.97
+      value: 1.01
       objectReference: {fileID: 0}
     - target: {fileID: 7054012349661152021, guid: bbea8a8592ca58f4d9dab25145cd8872,
         type: 3}
@@ -1945,6 +2007,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: FirTree
+      objectReference: {fileID: 0}
+    - target: {fileID: 9178329609714314789, guid: bbea8a8592ca58f4d9dab25145cd8872,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
