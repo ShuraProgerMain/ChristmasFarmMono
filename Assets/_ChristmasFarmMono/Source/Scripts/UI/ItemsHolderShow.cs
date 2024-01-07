@@ -1,7 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using _ChristmasFarmMono.Source.Scripts.ItemsDatabases;
-using JetBrains.Annotations;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,7 +18,7 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
         private VisualElement _itemsHolder;
 
         private Action _onOkMouseDown;
-        [CanBeNull] private ItemsViewUIDatabase _itemsViewUIDatabase;
+        private ItemsViewUIDatabase _itemsViewUIDatabase;
         private readonly Dictionary<string, TemplateContainer> _instantiatedCells = new ();
 
         private readonly ItemCellViewParameters _defaultCellParameters = new()
@@ -43,17 +43,27 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
         public void ShowItemsHolder(IReadOnlyList<string>? itemsIds, string textValue, 
             ItemCellViewParameters? viewParameters, Action<string> onItemMouseDown, Action onOkMouseDown)
         {
+            if (itemsIds is null)
+            {
+                throw new ArgumentException($"Null readonly list ItemsIds in {nameof(ShowItemsHolder)}");
+            }
+            
             ClearHolder();
             
             _onOkMouseDown = onOkMouseDown;
             foreach (var itemsId in itemsIds)
             {
-                var cell = GetCellInstance(_itemsViewUIDatabase?.GetSprite(itemsId), textValue, viewParameters);
+                var cell = GetCellInstance(_itemsViewUIDatabase?.GetSprite(itemsId)!, textValue, viewParameters);
                 _instantiatedCells.Add(itemsId, cell); 
                 cell.RegisterCallback<MouseDownEvent>(_ => onItemMouseDown?.Invoke(itemsId));
             }
 
             _container.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+        }
+
+        public void HideItemsHolder()
+        {
+            ClearHolder();
         }
 
         public void UpdateItemText(string itemId, string text)

@@ -33,10 +33,7 @@ namespace _ChristmasFarmMono.Source.Scripts.ItemsDatabases
 
         public ItemsViewUIDatabase()
         {
-            Addressables.LoadAssetsAsync<ItemViewUI>("ItemViews", o =>
-            {
-                Debug.Log(o.name);
-            }).Completed += handle =>
+            Addressables.LoadAssetsAsync<ItemViewUI>("ItemViews", null).Completed += handle =>
             {
                 _itemViewUis = handle.Result.ToDictionary(x => x.Identifier);
             };

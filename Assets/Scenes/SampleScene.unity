@@ -1316,6 +1316,7 @@ MonoBehaviour:
   identifierTemplate: {fileID: 11400000, guid: 70d5aeee65c02fc4ca718b6f11a8faea, type: 2}
   firTrees:
   - {fileID: 766541685}
+  itemsHolderShow: {fileID: 334411696}
 --- !u!1001 &1159893270
 PrefabInstance:
   m_ObjectHideFlags: 0

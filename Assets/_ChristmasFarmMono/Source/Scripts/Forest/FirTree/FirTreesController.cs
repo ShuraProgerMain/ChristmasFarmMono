@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
 using _ChristmasFarmMono.Source.Scripts.Inventory;
 using _ChristmasFarmMono.Source.Scripts.Items;
+using _ChristmasFarmMono.Source.Scripts.UI;
 using UnityEngine;
 using VContainer;
 using Random = UnityEngine.Random;
@@ -22,10 +23,13 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
         [SerializeField] private AnyIdentifier identifierTemplate;
         [SerializeField] private FirTreeMediator[] firTrees;
 
+        [SerializeField] private ItemsHolderShow itemsHolderShow;
+
         private readonly Dictionary<string, FirTreeState> _firTreesStates = new ();
         
         private InventoryController _inventoryController;
         private FirTreeInput _firTreeInput;
+        private FirTreeProduction _firTreeProduction;
 
         [Inject]
         private void Construct(InventoryController inventoryController)
@@ -45,6 +49,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
             }
 
             _firTreeInput = new FirTreeInput();
+            _firTreeProduction = new FirTreeProduction(itemsHolderShow);
         }
 
         // Funk<Task, PlayerInteractiveActions>?
@@ -57,14 +62,13 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
             switch (firState.InteractiveState)
             {
                 case InteractiveState.Input:
-                    
                     _firTreeInput.SetInput(() =>
                     {
-                        FirTreeInputResult(identifier);
+                        InteractiveInputResult(identifier);
                     });
-                    
                     break;
                 case InteractiveState.Production:
+                    _firTreeProduction.ShowProduction(identifier);
                     break;
                 case InteractiveState.Output:
                     break;
@@ -73,13 +77,17 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
             }
         }
 
-        private void FirTreeInputResult(string firId)
+        private void InteractiveInputResult(string firId)
         {
             _inventoryController.AddItem(woodItemId.Id, Random.Range(2, 6));
             
             _firTreesStates[firId].InteractiveState = InteractiveState.Production;
-            
-            Debug.Log(" Zaconchilas suetaaaa ");
+            _firTreeProduction.SetProduction(firId, woodItemId.Id, InteractiveProductionResult);
+        }
+
+        private void InteractiveProductionResult(ProductionResult result)
+        {
+            _firTreesStates[result.ProductionGardenBedId].InteractiveState = InteractiveState.Input;
         }
     }
 }

@@ -22,7 +22,8 @@ namespace _ChristmasFarmMono.Source.Scripts.Inventory
         {
             if (!_items.TryAdd(itemId, count))
             {
-                _items[itemId] += count;
+                _items[itemId] += count; 
+                Debug.Log(_items[itemId]);
                 return;
             }
 
