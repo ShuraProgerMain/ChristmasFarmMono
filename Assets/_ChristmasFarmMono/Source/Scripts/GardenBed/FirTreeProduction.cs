@@ -47,11 +47,11 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
             {
                 ProductionItemId = itemId,
                 ProductionStartTime = DateTime.UtcNow,
-                ProductionEndTime = DateTime.UtcNow.AddSeconds(10),
+                ProductionEndTime = DateTime.UtcNow.AddSeconds(20),
                 ProductionComplete = productionComplete
             });
 
-            Timer.Register(10, () => ProductionComplete(firTreeId));
+            Timer.Register(20, () => ProductionComplete(firTreeId));
         }
 
         private async void HideProduction()
@@ -75,19 +75,30 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         
         private async Task StartUpdateTimer(ProductionState productionState, CancellationToken token)
         {
-            try
+            await TimerView.UpdateEverySecond(() =>
             {
-                while (productionState.ProductionEndTime > DateTime.UtcNow && !token.IsCancellationRequested)
-                {
-                    UpdateTimerText(productionState.ProductionItemId, productionState.ProductionEndTime - DateTime.UtcNow);
-                    await Task.Delay(1000);
-                }
-            }
-            catch (Exception e)
+                UpdateTimerText(productionState.ProductionItemId, productionState.ProductionEndTime - DateTime.UtcNow);
+            }, () => productionState.ProductionEndTime > DateTime.UtcNow, token);
+            
+            if (_updateTimerTask is not null)
             {
-                Debug.LogError(e);
-                throw;
+                HideProduction();
+                _itemsHolderShow.HideItemsHolder();
             }
+            
+            // try
+            // {
+            //     while (productionState.ProductionEndTime > DateTime.UtcNow && !token.IsCancellationRequested)
+            //     {
+            //         UpdateTimerText(productionState.ProductionItemId, productionState.ProductionEndTime - DateTime.UtcNow);
+            //         await Task.Delay(1000);
+            //     }
+            // }
+            // catch (Exception e)
+            // {
+            //     Debug.LogError(e);
+            //     throw;
+            // }
         }
 
         private void UpdateTimerText(string itemId, TimeSpan currentTime)
@@ -97,12 +108,6 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         private void ProductionComplete(string firTreeId)
         {
-            if (_updateTimerTask is not null)
-            {
-                HideProduction();
-                _itemsHolderShow.HideItemsHolder();
-            }
-            
             var productionState = _inProductionFirTrees[firTreeId];
             
             productionState.ProductionComplete?.Invoke(new ProductionResult()
