@@ -53,6 +53,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - ItemViews
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a954d2c5ed9fa6e408765263dffd2afc
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/ViewUI/GardenBedInHand.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: da7daa0addd2986408c01ac144392959
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/View/GardenInHand.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: cf96c845399a8e54a8518229929e65c6, type: 2}
   m_SchemaSet:

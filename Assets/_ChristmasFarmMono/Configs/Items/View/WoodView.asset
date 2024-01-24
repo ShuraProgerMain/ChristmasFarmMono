@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: WoodView
   m_EditorClassIdentifier: 
   identifier: {fileID: 11400000, guid: 432f62c65864cdb4297730c5bd2571e2, type: 2}
-  <ItemPrefab>k__BackingField: {fileID: 926279252687323741, guid: dcb2c399959175a4ba6f706b8434b6c8,
+  <ItemPrefab>k__BackingField: {fileID: 9178329609714314789, guid: bbea8a8592ca58f4d9dab25145cd8872,
     type: 3}

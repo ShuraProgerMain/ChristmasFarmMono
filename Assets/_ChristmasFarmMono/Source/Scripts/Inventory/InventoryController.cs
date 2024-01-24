@@ -6,7 +6,15 @@ namespace _ChristmasFarmMono.Source.Scripts.Inventory
     public sealed class InventoryController
     {
         private readonly Dictionary<string, int> _items = new ();
+        private readonly Dictionary<string, int> _inStockHandheldObjects = new();
+        
+        public Dictionary<string, int> InStockHandheldObjects => _inStockHandheldObjects;
 
+        public InventoryController()
+        {
+            AddHandObject("garden_bed", 1);
+        }
+        
         public int GetItemCount(string itemId)
         {
             if (_items.TryGetValue(itemId, out var value))
@@ -28,6 +36,14 @@ namespace _ChristmasFarmMono.Source.Scripts.Inventory
             }
 
             Debug.Log(_items[itemId]);
+        }
+        
+        public void AddHandObject(string objectId, int count)
+        {
+            if (!_inStockHandheldObjects.TryAdd(objectId, count))
+            {
+                _inStockHandheldObjects[objectId] += count; 
+            }
         }
     }
 }

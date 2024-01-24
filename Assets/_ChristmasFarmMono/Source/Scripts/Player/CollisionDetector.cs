@@ -10,12 +10,18 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         private void OnTriggerEnter(Collider other)
         {
-            TriggerEnter?.Invoke(other);
+            if (enabled)
+            {
+                TriggerEnter?.Invoke(other);
+            }
         }
 
         private void OnTriggerExit(Collider other)
         {
-            TriggerExit?.Invoke(other);
+            if (enabled)
+            {
+                TriggerExit?.Invoke(other);
+            }
         }
     }
 }

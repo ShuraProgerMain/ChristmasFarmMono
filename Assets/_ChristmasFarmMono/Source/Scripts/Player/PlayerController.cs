@@ -2,8 +2,14 @@ using System;
 using System.Threading.Tasks;
 using _ChristmasFarmMono.Source.Scripts.Extensions;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
+using _ChristmasFarmMono.Source.Scripts.InHandObjects;
+using _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
+using VContainer;
+using VContainer.Unity;
 
 namespace _ChristmasFarmMono.Source.Scripts.Player
 {
@@ -19,7 +25,24 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         }
     }
 
-    public sealed class PlayerController : MonoBehaviour
+    public sealed class InputActionsService : IDisposable
+    {
+        public GameplayActions GameplayActions { get; }
+
+        public InputActionsService()
+        {
+            GameplayActions = new GameplayActions();
+            GameplayActions.Enable();
+        }
+
+        public void Dispose()
+        {
+            GameplayActions?.Disable();
+            GameplayActions?.Dispose();
+        }
+    }
+
+    public sealed class PlayerController : MonoBehaviour, ITickable
     {
         [SerializeField] private float moveSpeed = 1f;
         [SerializeField] private float rotateSpeed = 50f;
@@ -28,34 +51,50 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         [SerializeField] private Animator animator;
 
         [SerializeField] private CollisionDetector collisionDetector;
+        [FormerlySerializedAs("gardenBedInHandConfig")] [SerializeField] private GardenBedItemConfig gardenBedItemConfig;
+        [SerializeField] private HandledObjectViewConfig handledObjectViewConfig;
 
         private MoveCalculator _moveCalculator;
-        private GameplayActions _gameplayActions;
+        private InputActionsService _inputActionsService;
         private IInteractive _currentInteractObject;
         
+        private Action _interactiveAction;
+
+        private Vector2 _moveVector;
+
+        private Vector2 MoveVector
+        {
+            get => _moveVector;
+
+            set
+            {
+                if (value.magnitude > 0)
+                {
+                    _moveVector = value;
+                }
+            }
+        }
+
         private readonly int _speed = Animator.StringToHash("Speed");
 
-        private void OnEnable()
+        [Inject]
+        private void Construct(InputActionsService inputActionsService, InHandsObjectInventoryController inHandsObjectInventoryController)
         {
+            _inputActionsService = inputActionsService;
+            inHandsObjectInventoryController.Initialize(OnSelectHandledObject);
             _moveCalculator = new MoveCalculator();
-            _gameplayActions = new GameplayActions();
 
-            _gameplayActions.Character.Interact.performed += Interact;
+            _inputActionsService.GameplayActions.Character.Interact.performed += Interact;
 
             collisionDetector.TriggerEnter += OnTriggerEnterCustom;
             collisionDetector.TriggerExit += OnTriggerExitCustom;
         }
-
-        private void Start()
+        
+        public void Tick()
         {
-            _gameplayActions.Enable();
+            Move(_inputActionsService.GameplayActions.Character.Movement.ReadValue<Vector2>());
         }
-
-        private void Update()
-        {
-            Move(_gameplayActions.Character.Movement.ReadValue<Vector2>());
-        }
-
+        
         private void OnTriggerEnterCustom(Collider other)
         {
             _currentInteractObject?.TryDropSelect();
@@ -63,6 +102,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
             if (other.TryGetComponent(out IInteractive gardenBedMediator))
             {
                 _currentInteractObject = gardenBedMediator;
+                _interactiveAction = _currentInteractObject.Interact;
                 _currentInteractObject.TrySelect();
             }
         }
@@ -80,23 +120,31 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         private void Move(Vector2 moveDirection)
         {
+            MoveVector = moveDirection;
+            
             transform.position += _moveCalculator.Move(moveDirection, 
                             transform, moveSpeed, Time.deltaTime);
                         
             viewTransform.rotation = _moveCalculator.SmoothRotation(moveDirection, viewTransform.rotation, rotateSpeed * Time.deltaTime);
-            
             animator.SetFloat(_speed, _moveCalculator.CurrentVelocity.magnitude);
         }
 
         private void Interact(InputAction.CallbackContext context)
         {
-            _currentInteractObject?.Interact();
+            _interactiveAction?.Invoke();
         }
 
-        private void OnDisable()
+        private void OnSelectHandledObject([CanBeNull] IHandheldObject handheldObject)
         {
-            _gameplayActions.Disable();
-            _gameplayActions.Dispose();
+            if (handheldObject is null)
+            {
+                collisionDetector.enabled = true;
+                return;
+            }
+
+            collisionDetector.enabled = false;
+            _interactiveAction = () => handheldObject.PlaceSpecimen(viewTransform.position, viewTransform.forward);
+            handheldObject.ShowCellVisualization(() => new GardenBedInHandDTO(MoveVector, viewTransform.position, viewTransform.forward));
         }
     }
 }

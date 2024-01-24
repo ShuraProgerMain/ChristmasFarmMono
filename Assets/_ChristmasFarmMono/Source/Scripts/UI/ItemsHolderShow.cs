@@ -1,6 +1,8 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory;
+using _ChristmasFarmMono.Source.Scripts.Inventory;
 using _ChristmasFarmMono.Source.Scripts.ItemsDatabases;
 using Unity.Mathematics;
 using UnityEngine;
@@ -20,6 +22,7 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
         private Action _onOkMouseDown;
         private ItemsViewUIDatabase _itemsViewUIDatabase;
         private readonly Dictionary<string, TemplateContainer> _instantiatedCells = new ();
+        private InHandsObjectInventoryController _inHandsObjectInventoryController;
 
         private readonly ItemCellViewParameters _defaultCellParameters = new()
         {
@@ -28,7 +31,7 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
         };
         
         [Inject]
-        private void Constructor(ItemsViewUIDatabase itemsViewUIDatabase)
+        private void Constructor(ItemsViewUIDatabase itemsViewUIDatabase, InventoryController inventoryController)
         {
             _itemsViewUIDatabase = itemsViewUIDatabase;
         }

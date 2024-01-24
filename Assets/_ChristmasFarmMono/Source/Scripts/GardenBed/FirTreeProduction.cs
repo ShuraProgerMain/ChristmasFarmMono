@@ -85,20 +85,6 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
                 HideProduction();
                 _itemsHolderShow.HideItemsHolder();
             }
-            
-            // try
-            // {
-            //     while (productionState.ProductionEndTime > DateTime.UtcNow && !token.IsCancellationRequested)
-            //     {
-            //         UpdateTimerText(productionState.ProductionItemId, productionState.ProductionEndTime - DateTime.UtcNow);
-            //         await Task.Delay(1000);
-            //     }
-            // }
-            // catch (Exception e)
-            // {
-            //     Debug.LogError(e);
-            //     throw;
-            // }
         }
 
         private void UpdateTimerText(string itemId, TimeSpan currentTime)

@@ -28,10 +28,16 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         private void OnItemMouseDown(string itemId)
         {
-            if (_tempResult.PlantingItem == itemId || !string.IsNullOrWhiteSpace(_tempResult.PlantingItem))
+            if (_tempResult.PlantingItem == itemId)
             {
                 _gardenBedInputView.UnselectItem(_tempResult.PlantingItem);
                 _tempResult.PlantingItem = string.Empty;
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(_tempResult.PlantingItem))
+            {
+                _gardenBedInputView.UnselectItem(_tempResult.PlantingItem);
             }
 
             _tempResult.PlantingItem = itemId;

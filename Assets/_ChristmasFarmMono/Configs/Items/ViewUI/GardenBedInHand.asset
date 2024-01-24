@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bae5d1aa784e4bdcaea126663c5589c7, type: 3}
+  m_Name: GardenBedInHand
+  m_EditorClassIdentifier: 
+  identifier: {fileID: 11400000, guid: fa38440f373130e40bb311823dd27b53, type: 2}
+  <ItemSprite>k__BackingField: {fileID: 10901, guid: 0000000000000000f000000000000000,
+    type: 0}
