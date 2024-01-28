@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using _ChristmasFarmMono.Source.Scripts.InHandObjects;
-using AddressableExtensions;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -17,7 +16,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Configs
     {
         public async Task<GardenBedItemConfig> LoadConfig()
         {
-            GardenBedInHandParameters config = await Addressables.LoadAssetAsync<GardenBedInHandParameters>(Gameconfigs.Gardenbedinhandconfig).Task;
+            GardenBedInHandParameters config = await Addressables.LoadAssetAsync<GardenBedInHandParameters>(AddressableExtensions.GameConfigs.GardenBedInHandConfig).Task;
 
             return config.itemConfig with { };
         }

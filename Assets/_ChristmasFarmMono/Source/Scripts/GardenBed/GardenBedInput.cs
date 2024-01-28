@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using _ChristmasFarmMono.Source.Scripts.UI;
+using UnityEngine.Serialization;
 
 namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 {
@@ -10,18 +11,18 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         private readonly GardenBedInputView _gardenBedInputView;
 
-        private GardenBedInputResult _tempResult = new();
+        private GardenBedInputResult _tempResult;
         private Action<GardenBedInputResult> _onResultedInput;
         
-        public GardenBedInput(string[]? itemsForPlanting, ItemsHolderShow itemsHolderShow)
+        public GardenBedInput(string[]? itemsForPlanting, InGameUIManager inGameUIManager)
         {
             _itemsForPlanting = itemsForPlanting;
-            _gardenBedInputView = new GardenBedInputView(itemsHolderShow);
+            _gardenBedInputView = new GardenBedInputView(inGameUIManager);
         }
         
         public void ShowInput(string currentGardenBedId, Action<GardenBedInputResult> onResultedInput)
         {
-            _tempResult.CurrentGardenBed = currentGardenBedId;
+            _tempResult.GardenBedId = currentGardenBedId;
             _onResultedInput = onResultedInput;
             _gardenBedInputView.ShowItems(_itemsForPlanting, OnItemMouseDown, OnOkMouseDown);
         }
@@ -56,17 +57,23 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
     
     public struct GardenBedInputResult
     {
-        public string CurrentGardenBed;
+        [FormerlySerializedAs("CurrentGardenBed")] public string GardenBedId;
         public string PlantingItem;
+
+        public override string ToString()
+        {
+            return $"CurrentGardenBed: {GardenBedId}; \n" +
+                   $"PlantingItem: {PlantingItem}";
+        }
     }
 
     public sealed class GardenBedInputView
     {
         private readonly ItemsHolderShow _itemsHolder;
         
-        public GardenBedInputView(ItemsHolderShow itemsHolder)
+        public GardenBedInputView(InGameUIManager inGameUIManager)
         {
-            _itemsHolder = itemsHolder;
+            _itemsHolder = inGameUIManager.PrepareItemHolderForShow();
         }
 
         public void ShowItems(IReadOnlyList<string>? itemsIds, Action<string> onItemMouseDown, Action onOkMouseDown)

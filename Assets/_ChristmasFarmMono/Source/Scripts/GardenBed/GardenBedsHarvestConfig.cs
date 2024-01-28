@@ -13,6 +13,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
     [CreateAssetMenu(fileName = "HarvestConfig", menuName = "ChristmasFarm / Garden beds / Garden bed harvest config", order = 0)]
     public class GardenBedsHarvestConfig : ScriptableObject
     {
+        [field: SerializeField] public AnyIdentifier DefaultGardenBedIdentifier { get; private set; }
         [field: SerializeField] public ValuePair<AnyIdentifier, int>[] HarvestAmounts { get; private set; }
     }
 }

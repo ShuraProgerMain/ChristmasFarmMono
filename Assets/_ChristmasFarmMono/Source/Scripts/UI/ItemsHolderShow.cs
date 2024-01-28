@@ -1,28 +1,27 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory;
-using _ChristmasFarmMono.Source.Scripts.Inventory;
+using System.Linq;
 using _ChristmasFarmMono.Source.Scripts.ItemsDatabases;
+using _ChristmasFarmMono.Source.Scripts.Player;
+using AddressableExtensions;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
-using VContainer;
 
 namespace _ChristmasFarmMono.Source.Scripts.UI
 {
-    public sealed class ItemsHolderShow : MonoBehaviour
+    public sealed class ItemsHolderShow : UIPanelBase
     {
-        [SerializeField] private UIDocument uiDocument;
-        [SerializeField] private VisualTreeAsset itemCell;
+        private readonly VisualTreeAsset _itemCell;
 
         private VisualElement _container;
-        private VisualElement _itemsHolder;
+        private VisualElement _itemsContainer;
 
-        private Action _onOkMouseDown;
-        private ItemsViewUIDatabase _itemsViewUIDatabase;
-        private readonly Dictionary<string, TemplateContainer> _instantiatedCells = new ();
-        private InHandsObjectInventoryController _inHandsObjectInventoryController;
+        private readonly ItemsViewUIDatabase _itemsViewUIDatabase;
+        private readonly Dictionary<string, VisualElement> _instantiatedCells = new ();
 
         private readonly ItemCellViewParameters _defaultCellParameters = new()
         {
@@ -30,19 +29,27 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
             ItemFontSize = 10
         };
         
-        [Inject]
-        private void Constructor(ItemsViewUIDatabase itemsViewUIDatabase, InventoryController inventoryController)
+        private Action _onOkMouseDown;
+
+        public ItemsHolderShow(ItemsViewUIDatabase itemsViewUIDatabase, InputActionsService inputActionsService) : base(inputActionsService)
         {
+            _itemCell = Addressables.LoadAssetAsync<VisualTreeAsset>(UITemplates.ItemCell).WaitForCompletion();
             _itemsViewUIDatabase = itemsViewUIDatabase;
-        }
-        
-        private void OnEnable()
-        {
-            _container = uiDocument.rootVisualElement.Q<VisualElement>("Container");
-            _container.Q<VisualElement>("Button").RegisterCallback<MouseDownEvent>(OnOkButtonDown);
-            _itemsHolder = uiDocument.rootVisualElement.Q<VisualElement>("ItemsHolder");
+            
+            inputActionsService.GameplayActions.UI.Click.performed += OnSelectFocused;
         }
 
+        public override UIPanelBase Init(VisualElement topElement)
+        {
+            base.Init(topElement);
+            
+            _container = TopElement.Q<VisualElement>("Container");
+            _itemsContainer = _container.Q<VisualElement>("AllItems");
+            _container.Q<VisualElement>("Button").RegisterCallback<ClickEvent>(OnOkButtonDown);
+
+            return this;
+        }
+        
         public void ShowItemsHolder(IReadOnlyList<string>? itemsIds, string textValue, 
             ItemCellViewParameters? viewParameters, Action<string> onItemMouseDown, Action onOkMouseDown)
         {
@@ -57,16 +64,21 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
             foreach (var itemsId in itemsIds)
             {
                 var cell = GetCellInstance(_itemsViewUIDatabase?.GetSprite(itemsId)!, textValue, viewParameters);
+                cell.tabIndex = _instantiatedCells.Count + 1;
                 _instantiatedCells.Add(itemsId, cell); 
-                cell.RegisterCallback<MouseDownEvent>(_ => onItemMouseDown?.Invoke(itemsId));
+                cell.RegisterCallback<ClickEvent>(_ => onItemMouseDown?.Invoke(itemsId));
             }
-
-            _container.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+            
+            ShowPanel();
+            TopElement.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
+            
+            _instantiatedCells.First().Value.Children().First().Focus();
         }
 
-        public void HideItemsHolder()
+        public override void HidePanel()
         {
             ClearHolder();
+            base.HidePanel();
         }
 
         public void UpdateItemText(string itemId, string text)
@@ -88,20 +100,26 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
             cell.Q<VisualElement>("Check").style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
         }
 
-        private void OnOkButtonDown(MouseDownEvent mouseDownEvent)
+        private void OnOkButtonDown(ClickEvent mouseDownEvent)
         {
             _onOkMouseDown?.Invoke();
             ClearHolder();
+            base.HidePanel();
         }
 
-        private TemplateContainer GetCellInstance(Sprite sprite, string text, ItemCellViewParameters? viewParameters)
+        private void OnSelectFocused(InputAction.CallbackContext callbackContext)
+        {
+            SimulateClick(TopElement.focusController.focusedElement);
+        }
+
+        private VisualElement GetCellInstance(Sprite sprite, string text, ItemCellViewParameters? viewParameters)
         {
             viewParameters ??= _defaultCellParameters;
             
-            var cell = itemCell.Instantiate();
+            var cell = _itemCell.CloneTree();
             var cellSprite = cell.Q<VisualElement>("Sprite");
             var cellCount = cell.Q<Label>("Count");
-            
+
 
             cellSprite.style.backgroundImage = new StyleBackground(sprite);
             cellSprite.style.width = new StyleLength(viewParameters.Value.ItemSpriteSize.x);
@@ -111,16 +129,16 @@ namespace _ChristmasFarmMono.Source.Scripts.UI
             cellCount.text = text;
             cellCount.style.fontSize = new StyleLength(viewParameters.Value.ItemFontSize);
             
-            _itemsHolder.Add(cell);
+            _itemsContainer.Add(cell);
 
             return cell;
         }
 
         private void ClearHolder()
         {
-            _itemsHolder.Clear();
+            _itemsContainer.Clear();
             _instantiatedCells.Clear();
-            _container.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
+            TopElement.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
         }
     }
 }

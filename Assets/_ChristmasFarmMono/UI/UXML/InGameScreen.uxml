@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:Template name="ItemsHolder" src="project://database/Assets/_ChristmasFarmMono/UI/UXML/ItemsHolder.uxml?fileID=9197481963319205126&amp;guid=a7f6019831df439429f9c397fe264c95&amp;type=3#ItemsHolder" />
+    <ui:VisualElement name="root" style="flex-grow: 1;">
+        <ui:Instance template="ItemsHolder" name="ItemsHolder" style="display: none; position: relative;" />
+    </ui:VisualElement>
+</ui:UXML>

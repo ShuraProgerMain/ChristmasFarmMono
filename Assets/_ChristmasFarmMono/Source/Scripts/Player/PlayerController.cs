@@ -7,7 +7,6 @@ using _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 using VContainer;
 using VContainer.Unity;
 
@@ -35,6 +34,18 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
             GameplayActions.Enable();
         }
 
+        public void EnableUI()
+        {
+            GameplayActions.Character.Disable();
+            GameplayActions.UI.Enable();
+        }
+        
+        public void DisableUI()
+        {
+            GameplayActions.Character.Enable();
+            GameplayActions.UI.Disable();
+        }
+
         public void Dispose()
         {
             GameplayActions?.Disable();
@@ -51,7 +62,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         [SerializeField] private Animator animator;
 
         [SerializeField] private CollisionDetector collisionDetector;
-        [FormerlySerializedAs("gardenBedInHandConfig")] [SerializeField] private GardenBedItemConfig gardenBedItemConfig;
+        [SerializeField] private GardenBedItemConfig gardenBedItemConfig;
         [SerializeField] private HandledObjectViewConfig handledObjectViewConfig;
 
         private MoveCalculator _moveCalculator;
@@ -144,7 +155,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
             collisionDetector.enabled = false;
             _interactiveAction = () => handheldObject.PlaceSpecimen(viewTransform.position, viewTransform.forward);
-            handheldObject.ShowCellVisualization(() => new GardenBedInHandDTO(MoveVector, viewTransform.position, viewTransform.forward));
+            handheldObject.ShowCellVisualization(() => new GardenBedInHandDTO(viewTransform.position, viewTransform.forward));
         }
     }
 }

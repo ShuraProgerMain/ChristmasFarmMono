@@ -1,6 +1,7 @@
 ﻿using _ChristmasFarmMono.Source.Scripts.Configs;
 using _ChristmasFarmMono.Source.Scripts.Forest.FirTree;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
+using _ChristmasFarmMono.Source.Scripts.InHandObjects;
 using _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory;
 using _ChristmasFarmMono.Source.Scripts.Inventory;
 using _ChristmasFarmMono.Source.Scripts.ItemsDatabases;
@@ -29,9 +30,15 @@ namespace _ChristmasFarmMono.Source.Scripts.Installers
             builder.Register<ItemsViewDatabase>(Lifetime.Singleton);
             builder.Register<ItemsViewUIDatabase>(Lifetime.Singleton);
             builder.Register<InventoryController>(Lifetime.Singleton);
-
-            builder.RegisterComponentInHierarchy<GardenBedsController>();
-            builder.RegisterComponentInHierarchy<ItemsHolderShow>();
+            builder.Register<GardenBedsSpawner>(Lifetime.Singleton);
+            
+            
+            //UI
+            builder.Register<ItemsHolderShow>(Lifetime.Singleton);
+            builder.RegisterComponentInHierarchy<InGameUIManager>();
+            
+            // Other mono
+            builder.RegisterComponentInHierarchy<GardenBedsBehaviourManager>();
             builder.RegisterComponentInHierarchy<FirTreesController>();
             builder.RegisterComponentInHierarchy<InHandsObjectInventoryController>();
             builder.RegisterComponentInHierarchy<PlayerController>().AsImplementedInterfaces();

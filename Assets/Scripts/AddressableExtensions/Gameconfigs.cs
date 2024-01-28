@@ -1,7 +1,7 @@
 namespace AddressableExtensions
 {
-   internal class Gameconfigs
+   internal class GameConfigs
    {
-        public const string Gardenbedinhandconfig = "GardenBedInHandConfig";
+        public const string GardenBedInHandConfig = "GardenBedInHandConfig";
    }
 }

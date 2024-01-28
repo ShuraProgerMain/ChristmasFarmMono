@@ -1,27 +1,30 @@
-﻿using _ChristmasFarmMono.Source.Scripts.Items;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 using UnityEngine;
 
 namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 {
     public sealed class GardenBedMediator : MonoBehaviour, IInteractive, ISelectable
     {
-        [SerializeField] private AnyIdentifier identifier;
+        private string _identifier;
         private Material _materialVariant;
 
-        private GardenBedsController _gardenBedsController;
+        private GardenBedsBehaviourManager _gardenBedsBehaviourManager;
         private GameObject _currentPlantItem;
         
         private static readonly int OutlineWidth = Shader.PropertyToID("_OutlineWidth");
         private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 
-        public string Identifier => identifier.Id;
+        public string Identifier => _identifier;
 
-        public void Initialize(GardenBedsController gardenBedsController)
+        public void Initialize(GardenBedsBehaviourManager gardenBedsBehaviourManager, string identifier)
         {
+            enabled = true;
+            _identifier = identifier;
             _materialVariant = GetComponent<MeshRenderer>().material;
 
-            _gardenBedsController = gardenBedsController;
+            GetComponent<Collider>().enabled = true;
+
+            _gardenBedsBehaviourManager = gardenBedsBehaviourManager;
         }
 
         public void SetItem(GameObject item)
@@ -50,7 +53,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         public void Interact()
         {
-            _gardenBedsController.Interactive(Identifier);
+            _gardenBedsBehaviourManager.Interactive(Identifier);
         }
     }
 }

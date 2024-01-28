@@ -10,9 +10,9 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         private const string MinutesAndSeconds = @"mm'm'\:ss's'";
         private readonly Action _onHideView;
         
-        public GardenBedProductionView(ItemsHolderShow itemsHolderShow, Action onHideView)
+        public GardenBedProductionView(InGameUIManager inGameUIManager, Action onHideView)
         {
-            _itemsHolderShow = itemsHolderShow;
+            _itemsHolderShow = inGameUIManager.PrepareItemHolderForShow();
             _onHideView = onHideView;
         }
 

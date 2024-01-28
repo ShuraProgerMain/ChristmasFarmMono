@@ -1,0 +1,27 @@
+.button {
+    align-items: auto;
+    justify-content: space-between;
+    align-self: center;
+    font-size: 16px;
+    -unity-text-align: middle-center;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 5px;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    color: rgb(231, 231, 231);
+    display: flex;
+    -unity-font-style: bold;
+    background-color: rgb(214, 202, 167);
+}
+
+.button:focus {
+    background-color: rgb(112, 155, 245);
+}
+
+.button:hover {
+    background-color: rgba(255, 0, 0, 0.37);
+}

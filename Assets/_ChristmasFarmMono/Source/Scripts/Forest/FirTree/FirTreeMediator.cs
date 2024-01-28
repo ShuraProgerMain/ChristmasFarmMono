@@ -17,7 +17,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
         {
             _identifier = identifier;
             _materialVariant = GetComponent<MeshRenderer>().material;
-            Debug.Log($"Tree matiral {_materialVariant}");
             _firTreesController = firTreesController;
         }
 

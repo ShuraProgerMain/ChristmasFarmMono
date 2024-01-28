@@ -6,7 +6,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 {
     public sealed record GardenBedOutputResult
     {
-        public string OutputGardenBedId { get; init; }
+        public string GardenBedId { get; init; }
         public string OutputItemId { get; init; }
     }
     
@@ -19,9 +19,9 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         
         private Action<GardenBedOutputResult> _outputResult;
 
-        public GardenBedOutput(ItemsHolderShow itemsHolderShow)
+        public GardenBedOutput(InGameUIManager inGameUIManager)
         {
-            _gardenBedOutputView = new GardenBedOutputView(itemsHolderShow);
+            _gardenBedOutputView = new GardenBedOutputView(inGameUIManager);
         }
 
         public void ShowOutput(string gardenBedId, Action<GardenBedOutputResult> outputResult)
@@ -33,7 +33,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         private void OnOkMouseDown()
         {
-            _gardenBedOutputStates.Remove(_tempOutputResult.OutputGardenBedId);
+            _gardenBedOutputStates.Remove(_tempOutputResult.GardenBedId);
             _outputResult?.Invoke(_tempOutputResult);
         }
         
@@ -42,7 +42,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
             _gardenBedOutputStates.Add(gardenBedId,
                 new GardenBedOutputResult
                 {
-                    OutputGardenBedId = gardenBedId,
+                    GardenBedId = gardenBedId,
                     OutputItemId = itemId
                 });
         }
@@ -52,9 +52,9 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
     {
         private readonly ItemsHolderShow _itemsHolderShow;
         
-        public GardenBedOutputView(ItemsHolderShow itemsHolderShow)
+        public GardenBedOutputView(InGameUIManager inGameUIManager)
         {
-            _itemsHolderShow = itemsHolderShow;
+            _itemsHolderShow = inGameUIManager.PrepareItemHolderForShow();
         }
 
         public void ShowOutput(string itemId, Action onOkMouseDown)

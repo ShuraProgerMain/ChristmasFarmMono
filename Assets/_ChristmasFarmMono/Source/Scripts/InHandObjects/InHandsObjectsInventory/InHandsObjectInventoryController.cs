@@ -9,6 +9,7 @@ using _ChristmasFarmMono.Source.Scripts.UI;
 using JetBrains.Annotations;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory
 {
@@ -23,7 +24,6 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
     {
         [SerializeField] [NotNull] private GardenBedItemConfig gardenBedItemConfig;
         [SerializeField] [NotNull] private HandledObjectViewConfig handledObjectViewConfig;
-        [SerializeField] [NotNull] private ItemsHolderShow itemsHolderShow;
         [SerializeField] [NotNull] private InHandsObjectReference reference;
         
         private readonly Dictionary<string, IHandheldObject> _inHandheldObjects = new();
@@ -36,19 +36,22 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
         private string _cachedSelectedObject;
 
         private Action<IHandheldObject> _selectHandledObject;
+        private GameConfigs _gameConfigs;
 
-        public Dictionary<string, int> InStockHandheldObjects => _inventoryController.InStockHandheldObjects;
+        private Dictionary<string, int> InStockHandheldObjects => _inventoryController.InStockHandheldObjects;
 
-        public Dictionary<string, IHandheldObject> InHandheldObjects => _inHandheldObjects;
-
+        private Dictionary<string, IHandheldObject> InHandheldObjects => _inHandheldObjects;
+        
         [Inject]
-        public void Construct(InventoryController inventoryController, InputActionsService inputActionsService, GameConfigs gameConfigs)
+        public void Construct(InventoryController inventoryController, InputActionsService inputActionsService, GameConfigs gameConfigs, IObjectResolver resolver, InGameUIManager inGameUIManager)
         {
+            _gameConfigs = gameConfigs;
+            
             _handledObjectView = new HandledObjectView(handledObjectViewConfig);
-            AddToDictionary(reference);
+            AddToDictionary(reference, resolver);
             _inputActionsService = inputActionsService;
             _inventoryController = inventoryController;
-            _handsObjectInventoryView = new InHandsObjectInventoryView(itemsHolderShow);
+            _handsObjectInventoryView = new InHandsObjectInventoryView(inGameUIManager);
 
             _inputActionsService.GameplayActions.Character.InHandInventory.performed += _ =>
             {
@@ -93,20 +96,21 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
             }
             else
             {
-                InHandheldObjects[_cachedSelectedObject].HideCellVisualization();
-                _cachedSelectedObject = string.Empty;
+                if (string.IsNullOrEmpty(_cachedSelectedObject)) return;
+                
+                InHandheldObjects[_cachedSelectedObject].HideCellVisualization(); 
+                _cachedSelectedObject = string.Empty; 
                 _selectHandledObject?.Invoke(null);
             }
         }
         
-        private void AddToDictionary(InHandsObjectReference target)
+        private void AddToDictionary(InHandsObjectReference target, IObjectResolver resolver)
         {
-            var instance = Activator.CreateInstance(target.HandheldObjectType) as IHandheldObject;
-
-            if (instance is null)
+            if (Activator.CreateInstance(target.HandheldObjectType) is not IHandheldObject instance)
                 throw new NullReferenceException("Something went wrong");
             
-            instance.Initialize(_handledObjectView);
+            resolver.Inject(instance);
+            instance.Initialize(_handledObjectView, _gameConfigs);
             _inHandheldObjects.Add(target.Identifier.Id, instance);
         }
     }
@@ -114,10 +118,12 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
     public sealed class InHandsObjectInventoryView
     {
         private readonly ItemsHolderShow _itemsHolder;
+        private readonly InGameUIManager _inGameUIManager;
 
-        public InHandsObjectInventoryView(ItemsHolderShow itemsHolder)
+        public InHandsObjectInventoryView(InGameUIManager inGameUIManager)
         {
-            _itemsHolder = itemsHolder;
+            _inGameUIManager = inGameUIManager;
+            _itemsHolder = _inGameUIManager.PrepareItemHolderForShow();
         }
 
         public void ShowView(IReadOnlyDictionary<string, int> inStockHandheldObjects, Action<string> onItemMouseDown, Action onOkMouseDown)

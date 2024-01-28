@@ -23,8 +23,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
         [SerializeField] private AnyIdentifier identifierTemplate;
         [SerializeField] private FirTreeMediator[] firTrees;
 
-        [SerializeField] private ItemsHolderShow itemsHolderShow;
-
         private readonly Dictionary<string, FirTreeState> _firTreesStates = new ();
         
         private InventoryController _inventoryController;
@@ -32,7 +30,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
         private FirTreeProduction _firTreeProduction;
 
         [Inject]
-        private void Construct(InventoryController inventoryController)
+        private void Construct(InventoryController inventoryController, InGameUIManager inGameUIManager)
         {
             _inventoryController = inventoryController;
             
@@ -49,7 +47,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Forest.FirTree
             }
 
             _firTreeInput = new FirTreeInput();
-            _firTreeProduction = new FirTreeProduction(itemsHolderShow);
+            _firTreeProduction = new FirTreeProduction(inGameUIManager);
         }
 
         // Funk<Task, PlayerInteractiveActions>?

@@ -17,9 +17,9 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         private CancellationTokenSource _updateTimerSource;
         private Task _updateTimerTask;
         
-        public FirTreeProduction(ItemsHolderShow itemsHolderShow)
+        public FirTreeProduction(InGameUIManager inGameUIManager)
         {
-            _itemsHolderShow = itemsHolderShow;
+            _itemsHolderShow = inGameUIManager.PrepareItemHolderForShow();
         }
 
         public void ShowProduction(string firTreeId)
@@ -83,7 +83,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
             if (_updateTimerTask is not null)
             {
                 HideProduction();
-                _itemsHolderShow.HideItemsHolder();
+                _itemsHolderShow.HidePanel();
             }
         }
 

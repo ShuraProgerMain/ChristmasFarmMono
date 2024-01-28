@@ -20,12 +20,12 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
 
         private bool _productionIsShowed;
         
-        public GardenBedProduction(ItemsHolderShow itemsHolderShow, 
+        public GardenBedProduction(InGameUIManager inGameUIManager, 
             ItemsViewDatabase itemsViewDatabase)
         {
             _itemsViewDatabase = itemsViewDatabase;
 
-            _gardenBedProductionView = new GardenBedProductionView(itemsHolderShow, OnHideView);
+            _gardenBedProductionView = new GardenBedProductionView(inGameUIManager, OnHideView);
         }
 
         public void ShowProduction(string gardenBedIdentifier)
@@ -90,6 +90,7 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
                 ProductionGardenBedId = gardenBedId,
                 ProductionIsShowed = _productionIsShowed
             });
+            
             _inProductionGardenBeds.Remove(gardenBedId);
             _productionIsShowed = false;
             _updateTimerTask = null;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using _ChristmasFarmMono.Source.Scripts.InHandObjects;
 using _ChristmasFarmMono.Source.Scripts.Inventory;
 using _ChristmasFarmMono.Source.Scripts.Items;
 using _ChristmasFarmMono.Source.Scripts.ItemsDatabases;
@@ -24,12 +25,10 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         public InteractiveState InteractiveState;
     }
     
-    public sealed class GardenBedsController : MonoBehaviour
+    public sealed class GardenBedsBehaviourManager : MonoBehaviour
     {
-        [SerializeField] private GardenBedMediator[] gardenBeds = new GardenBedMediator[6];
         [SerializeField] private AnyIdentifier[] itemsForPlanting;
 
-        [SerializeField] private ItemsHolderShow itemsHolderView;
         [SerializeField] private AssetReferenceT<GardenBedsHarvestConfig> harvestConfigReference;
         
         private Dictionary<string, GardenBedState> _gardenBedStates;
@@ -39,32 +38,27 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         private GardenBedProduction _gardenBedProduction;
         private GardenBedOutput _gardenBedOutput;
         private InventoryController _inventoryController;
+        private GardenBedsSpawner _gardenBedsSpawner;
+
+        private GardenBedsHarvestConfig _harvestConfig;
 
         [Inject]
-        private void Construct(ItemsViewDatabase itemsViewDatabase, InventoryController inventoryController)
+        private void Construct(ItemsViewDatabase itemsViewDatabase, InventoryController inventoryController, 
+            InGameUIManager inGameUIManager, GardenBedsSpawner gardenBedsSpawner)
         {
             _gardenBedStates = new Dictionary<string, GardenBedState>();
+            _gardenBedsSpawner = gardenBedsSpawner;
+            _gardenBedsSpawner.CreatedGardenBed += AddNewGardenBed;
             
-            foreach (var bed in gardenBeds)
-            {
-                bed.Initialize(this);
-                _gardenBedStates.Add(bed.Identifier, 
-                    new GardenBedState { Identifier = bed.Identifier, InteractiveState = InteractiveState.Input });
-            }
-            
-            var harvestConfig = harvestConfigReference.LoadAssetAsync().WaitForCompletion();
+            _harvestConfig = harvestConfigReference.LoadAssetAsync().WaitForCompletion();
 
-            _harvestAmounts = harvestConfig.HarvestAmounts.ToDictionary(k => k.First.Id, 
+            _harvestAmounts = _harvestConfig.HarvestAmounts.ToDictionary(k => k.First.Id, 
                 v => v.Second);
             
-            foreach (var keyValuePair in _harvestAmounts)
-            {
-                Debug.Log($"This key: {keyValuePair.Key} and value: {keyValuePair.Value}");
-            }
-            
-            _gardenBedInput = new GardenBedInput(itemsForPlanting?.Select(x => x.Id).ToArray(), itemsHolderView);
-            _gardenBedProduction = new GardenBedProduction(itemsHolderView, itemsViewDatabase);
-            _gardenBedOutput = new GardenBedOutput(itemsHolderView);
+            // Change to states
+            _gardenBedInput = new GardenBedInput(itemsForPlanting?.Select(x => x.Id).ToArray(), inGameUIManager);
+            _gardenBedProduction = new GardenBedProduction(inGameUIManager, itemsViewDatabase);
+            _gardenBedOutput = new GardenBedOutput(inGameUIManager);
             _inventoryController = inventoryController;
         }
         
@@ -89,6 +83,15 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
             }
         }
 
+        private void AddNewGardenBed(GardenBedMediator gardenBed)
+        {
+            var identifier = _harvestConfig.DefaultGardenBedIdentifier.Id + _gardenBedStates.Count;
+
+            gardenBed.Initialize(this, identifier);
+            
+            _gardenBedStates.Add(gardenBed.Identifier, new GardenBedState() { Identifier = gardenBed.Identifier, InteractiveState = InteractiveState.Input });
+        }
+
         #region InteractiveResults
 
         
@@ -96,9 +99,9 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         {
             _inventoryController.AddItem(result.OutputItemId, 5);
 
-            _gardenBedStates[result.OutputGardenBedId].InteractiveState = InteractiveState.Input;
+            _gardenBedStates[result.GardenBedId].InteractiveState = InteractiveState.Input;
             
-            gardenBeds.First(x => x.Identifier == result.OutputGardenBedId).ClearGardenBed();
+            _gardenBedsSpawner.GetGardenBedMediator(result.GardenBedId).ClearGardenBed();
         }
 
         private void InteractiveProductionResult(ProductionResult result)
@@ -115,12 +118,12 @@ namespace _ChristmasFarmMono.Source.Scripts.GardenBed
         {
             if (string.IsNullOrWhiteSpace(result.PlantingItem))
                 return;
-
-            _gardenBedStates[result.CurrentGardenBed].InteractiveState = InteractiveState.Production;
             
-            _gardenBedProduction.SetProduction(gardenBeds
-                    .First(x => x.Identifier == result.CurrentGardenBed),
-                result.CurrentGardenBed, result.PlantingItem, InteractiveProductionResult);
+            _gardenBedStates[result.GardenBedId].InteractiveState = InteractiveState.Production;
+
+            Debug.Log(result.ToString());
+            
+            _gardenBedProduction.SetProduction(_gardenBedsSpawner.GetGardenBedMediator(result.GardenBedId), result.GardenBedId, result.PlantingItem, InteractiveProductionResult);
         }
 
         #endregion
