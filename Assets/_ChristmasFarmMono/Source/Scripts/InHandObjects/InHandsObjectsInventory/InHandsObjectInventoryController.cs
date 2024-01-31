@@ -3,28 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using _ChristmasFarmMono.Source.Scripts.Configs;
 using _ChristmasFarmMono.Source.Scripts.Inventory;
-using _ChristmasFarmMono.Source.Scripts.Items;
 using _ChristmasFarmMono.Source.Scripts.Player;
 using _ChristmasFarmMono.Source.Scripts.UI;
 using JetBrains.Annotations;
 using UnityEngine;
 using VContainer;
-using VContainer.Unity;
 
 namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory
 {
-    public abstract class InHandsObjectReference : ScriptableObject
-    {
-        [field: SerializeField] public AnyIdentifier Identifier { get; private set; }
-
-        public abstract Type HandheldObjectType { get; }
-    }
-
     public sealed class InHandsObjectInventoryController : MonoBehaviour
     {
-        [SerializeField] [NotNull] private GardenBedItemConfig gardenBedItemConfig;
         [SerializeField] [NotNull] private HandledObjectViewConfig handledObjectViewConfig;
-        [SerializeField] [NotNull] private InHandsObjectReference reference;
+        [SerializeField] [NotNull] private InHandsObjectReference[] references;
         
         private readonly Dictionary<string, IHandheldObject> _inHandheldObjects = new();
         private InventoryController _inventoryController;
@@ -48,7 +38,12 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
             _gameConfigs = gameConfigs;
             
             _handledObjectView = new HandledObjectView(handledObjectViewConfig);
-            AddToDictionary(reference, resolver);
+            
+            foreach (var reference in references)
+            {
+                AddToDictionary(reference, resolver);
+            }
+            
             _inputActionsService = inputActionsService;
             _inventoryController = inventoryController;
             _handsObjectInventoryView = new InHandsObjectInventoryView(inGameUIManager);
@@ -56,6 +51,7 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
             _inputActionsService.GameplayActions.Character.InHandInventory.performed += _ =>
             {
                 _handsObjectInventoryView.ShowView(InStockHandheldObjects, OnItemMouseDown, OnOkMouseDown);
+                
                 if (!string.IsNullOrEmpty(_cachedSelectedObject))
                 {
                     _handsObjectInventoryView.SelectItem(_cachedSelectedObject);

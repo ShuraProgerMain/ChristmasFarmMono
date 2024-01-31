@@ -18,7 +18,17 @@ namespace _ChristmasFarmMono.Source.Scripts.Configs
         {
             GardenBedInHandParameters config = await Addressables.LoadAssetAsync<GardenBedInHandParameters>(AddressableExtensions.GameConfigs.GardenBedInHandConfig).Task;
 
-            return config.itemConfig with { };
+            return config.ItemConfig with { };
+        }
+    }
+    
+    public sealed class LoadPathTileGrassInHandConfig : IConfigLoader<PathTilesItemConfig>
+    {
+        public async Task<PathTilesItemConfig> LoadConfig()
+        {
+            PathTileGrassInHandParameters config = await Addressables.LoadAssetAsync<PathTileGrassInHandParameters>(AddressableExtensions.GameConfigs.PathTiles).Task;
+
+            return config.PathTilesItemConfig with { };
         }
     }
     
@@ -28,10 +38,10 @@ namespace _ChristmasFarmMono.Source.Scripts.Configs
         {
             var gameConfigs = new GameConfigs
             {
-                GardenBedItemConfig = await new LoadGardenBedInHandConfig().LoadConfig()
+                GardenBedItemConfig = await new LoadGardenBedInHandConfig().LoadConfig(),
+                PathTilesItemConfig = await new LoadPathTileGrassInHandConfig().LoadConfig(),
             };
 
-            Debug.Log("return memebrj");
             return gameConfigs;
         }
     }
@@ -39,5 +49,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Configs
     public sealed class GameConfigs
     {
         [CanBeNull] public GardenBedItemConfig GardenBedItemConfig;
+        [CanBeNull] public PathTilesItemConfig PathTilesItemConfig;
     }
 }

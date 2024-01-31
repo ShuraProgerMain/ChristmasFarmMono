@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using _ChristmasFarmMono.Source.Scripts.Extensions;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
+using JetBrains.Annotations;
 using UnityEngine;
 using VContainer;
 using GameConfigs = _ChristmasFarmMono.Source.Scripts.Configs.GameConfigs;
@@ -30,10 +32,18 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
         public void PlaceSpecimen(Vector3 originPosition, Vector3 forward);
     }
 
+    public sealed record HandheldControlData
+    {
+        public GameObject ParentObject { get; init; }
+        public GameObject ChildObject { get; init; }
+    }
+
     public sealed class HandledObjectView
     {
         private readonly HandledObjectViewConfig _config;
+        
         private readonly GameObject _viewObject;
+        
         private readonly Material _viewObjectMaterial;
 
         public HandledObjectView(HandledObjectViewConfig config)
@@ -42,10 +52,10 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
             _viewObject = Object.Instantiate(_config.HandledObjectView);
             _viewObjectMaterial = _viewObject.GetComponent<MeshRenderer>().material;
         }
-        
-        public GameObject GetHandledObjectView(GameObject handledObject)
+
+        public HandheldControlData GetHandheldControlData(GameObject handheldObject)
         {
-            GameObject newHandledObject = Object.Instantiate(handledObject, _viewObject.transform, true);
+            GameObject newHandledObject = Object.Instantiate(handheldObject, _viewObject.transform, true);
             
             var offsetY = -.5f + newHandledObject.transform.localScale.y;
             
@@ -54,8 +64,26 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
             
             newHandledObject.transform.localPosition = new Vector3(0, offsetY, 0);
             
-            return _viewObject;
+            return new HandheldControlData()
+            {
+                ParentObject = _viewObject,
+                ChildObject = newHandledObject
+            };
         }
+        
+        // public GameObject GetHandledObjectView(GameObject handledObject)
+        // {
+        //     GameObject newHandledObject = Object.Instantiate(handledObject, _viewObject.transform, true);
+        //     
+        //     var offsetY = -.5f + newHandledObject.transform.localScale.y;
+        //     
+        //     newHandledObject.transform.localScale = new Vector3(newHandledObject.transform.localScale.x * .9f,
+        //         newHandledObject.transform.localScale.y, newHandledObject.transform.localScale.z * .9f);
+        //     
+        //     newHandledObject.transform.localPosition = new Vector3(0, offsetY, 0);
+        //     
+        //     return _viewObject;
+        // }
 
         public void SetStateFree(bool isFree)
         {
@@ -69,7 +97,9 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
     {
         private GardenBedItemConfig _config;
         private GardenBedsSpawner _gardenBedsSpawner;
-        private GameObject _gardenForVisualize;
+
+        private HandheldControlData _currentTemporaryContainer;
+        
         private HandledObjectView _handledObjectView;
 
         private bool _canPlaceSpecimen;
@@ -86,13 +116,13 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
             _handledObjectView = handledObjectView;
             _config = gameConfigs.GardenBedItemConfig;
             
-            var tempComponent = handledObjectView.GetHandledObjectView(_config?.GardenBedMediator.gameObject);
-            _gardenForVisualize = tempComponent.gameObject;
+            _currentTemporaryContainer = handledObjectView.GetHandheldControlData(_config?.GardenBedMediator.gameObject);
             
-            Object.Destroy(tempComponent.GetComponentInChildren<GardenBedMediator>());
-            Object.Destroy(_gardenForVisualize.GetComponentInChildren<Collider>());
+            Object.Destroy(_currentTemporaryContainer.ChildObject.GetComponentInChildren<GardenBedMediator>());
+            Object.Destroy(_currentTemporaryContainer.ChildObject.GetComponentInChildren<Collider>());
             
-            _gardenForVisualize.SetActive(false);
+            _currentTemporaryContainer.ParentObject.SetActive(false);
+            _currentTemporaryContainer.ChildObject.SetActive(false);
         }
 
         public async void ShowCellVisualization(Func<GardenBedInHandDTO> getData)
@@ -103,17 +133,18 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
             if (data is null)
                 throw new ArgumentNullException($"The variable 'data' in {nameof(ShowCellVisualization)} is null");
             
-            var position = CalculateNextCellPosition(data.Value.OriginVector, data.Value.ForwardVector);
-            _gardenForVisualize.transform.position = position;
-            _gardenForVisualize.gameObject.SetActive(true);
+            var position = CellCalculator.CalculateNextCellPosition(data.Value.OriginVector, data.Value.ForwardVector);
+            _currentTemporaryContainer.ParentObject.transform.position = position;
+            _currentTemporaryContainer.ParentObject.SetActive(true);
+            _currentTemporaryContainer.ChildObject.SetActive(true);
             
             while (Application.isPlaying && !_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 GardenBedInHandDTO actualData = getData!.Invoke();
-                Vector3 updatedPosition = CalculateNextCellPosition(actualData.OriginVector, actualData.ForwardVector);
-                updatedPosition.y = _gardenForVisualize.transform.localScale.y * .5f;
+                Vector3 updatedPosition = CellCalculator.CalculateNextCellPosition(actualData.OriginVector, actualData.ForwardVector);
+                updatedPosition.y = _currentTemporaryContainer.ParentObject.transform.localScale.y * .5f;
 
-                _gardenForVisualize.transform.position = Vector3.MoveTowards(_gardenForVisualize.transform.position,
+                _currentTemporaryContainer.ParentObject.transform.position = Vector3.MoveTowards(_currentTemporaryContainer.ParentObject.transform.position,
                     updatedPosition, 6.5f * Time.deltaTime);
 
                 var hasGardenBedInPoint =
@@ -125,12 +156,12 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
                 
                 await Awaitable.NextFrameAsync();
             }
-
-            _gardenForVisualize.gameObject.SetActive(false);
         }
 
         public void HideCellVisualization()
         {
+            _currentTemporaryContainer.ParentObject.SetActive(false);
+            _currentTemporaryContainer.ChildObject.SetActive(false);
             _cancellationTokenSource?.Cancel();
         }
 
@@ -138,27 +169,8 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
         {
             if (!_canPlaceSpecimen) return;
             
-            var position = CalculateNextCellPosition(originPosition, forward);
+            var position = CellCalculator.CalculateNextCellPosition(originPosition, forward);
             _gardenBedsSpawner.SpawnGardenBed(position, Quaternion.identity);
-        }
-        
-        private Vector3 CalculateNextCellPosition(Vector3 originPosition, Vector3 forward)
-        {
-            var currentDirection = forward;
-            currentDirection *= .5f;
-            var value = originPosition + currentDirection;
-
-            var rounded = new Vector3(
-                x: RoundToNearestCell(value.x),
-                y: value.y,
-                z: RoundToNearestCell(value.z));
-
-            return rounded;
-        }
-        
-        private float RoundToNearestCell(float value, float cellSize = .5f)
-        {
-            return Mathf.Round(value / cellSize) * cellSize;
         }
     }
 

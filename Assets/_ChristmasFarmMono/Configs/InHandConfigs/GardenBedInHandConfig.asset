@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c10e31664e1944ec84f8d542a94590d6, type: 3}
   m_Name: GardenBedInHandConfig
   m_EditorClassIdentifier: 
-  inHandConfig:
+  ItemConfig:
     <GardenBedMediator>k__BackingField: {fileID: -674370394154129711, guid: be7b338929e1d244dadf79d218bd1a92,
       type: 3}
     <CellOffset>k__BackingField: {x: 0, y: 0}

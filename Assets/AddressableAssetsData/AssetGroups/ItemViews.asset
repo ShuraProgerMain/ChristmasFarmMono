@@ -65,6 +65,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - ItemViews
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a7519458e9e34354d8a8d632dd450b40
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/View/PathTilesGrass.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94b9c6889d7375a49b4cf94ae3778b0b
+    m_Address: Assets/_ChristmasFarmMono/Configs/Items/ViewUI/PathTilesGrass.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ItemViews
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: cf96c845399a8e54a8518229929e65c6, type: 2}
   m_SchemaSet:

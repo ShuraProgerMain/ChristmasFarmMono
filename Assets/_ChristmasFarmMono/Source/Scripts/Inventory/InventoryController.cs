@@ -13,6 +13,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Inventory
         public InventoryController()
         {
             AddHandObject("garden_bed", 1);
+            AddHandObject("path_tile_grass", 1);
         }
         
         public int GetItemCount(string itemId)

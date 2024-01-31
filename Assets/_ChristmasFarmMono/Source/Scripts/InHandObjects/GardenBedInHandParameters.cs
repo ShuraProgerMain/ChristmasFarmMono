@@ -1,7 +1,6 @@
 ﻿using System;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
 {
@@ -14,6 +13,6 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects
     [CreateAssetMenu(menuName = "ChristmasFarm / In Hand Configs / GardenBed", order = 2)]
     public sealed class GardenBedInHandParameters : ScriptableObject
     {
-        [FormerlySerializedAs("inHandConfig")] public GardenBedItemConfig itemConfig;
+        public GardenBedItemConfig ItemConfig;
     }
 }

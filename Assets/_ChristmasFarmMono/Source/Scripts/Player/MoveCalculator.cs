@@ -10,7 +10,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         public Vector2 CurrentVelocity => _currentVelocity;
 
-        // Нужно сделать по чище
         internal Vector3 Move(Vector2 velocity, Transform directTransform, float speed, float deltaTime)
         {
             _currentVelocity = Vector2.SmoothDamp(CurrentVelocity, velocity, ref _smoothInputVelocity, .05f);

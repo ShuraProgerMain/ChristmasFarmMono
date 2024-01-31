@@ -3,6 +3,7 @@ using _ChristmasFarmMono.Source.Scripts.Forest.FirTree;
 using _ChristmasFarmMono.Source.Scripts.GardenBed;
 using _ChristmasFarmMono.Source.Scripts.InHandObjects;
 using _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventory;
+using _ChristmasFarmMono.Source.Scripts.InHandObjects.PathTilesInHand;
 using _ChristmasFarmMono.Source.Scripts.Inventory;
 using _ChristmasFarmMono.Source.Scripts.ItemsDatabases;
 using _ChristmasFarmMono.Source.Scripts.Player;
@@ -30,6 +31,9 @@ namespace _ChristmasFarmMono.Source.Scripts.Installers
             builder.Register<ItemsViewDatabase>(Lifetime.Singleton);
             builder.Register<ItemsViewUIDatabase>(Lifetime.Singleton);
             builder.Register<InventoryController>(Lifetime.Singleton);
+            
+            // Spawners
+            builder.Register<PathTilesSpawner>(Lifetime.Singleton);
             builder.Register<GardenBedsSpawner>(Lifetime.Singleton);
             
             
