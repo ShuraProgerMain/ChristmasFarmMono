@@ -132,11 +132,12 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
         private void Move(Vector2 moveDirection)
         {
             MoveVector = moveDirection;
-            
+
             transform.position += _moveCalculator.Move(moveDirection, 
                             transform, moveSpeed, Time.deltaTime);
                         
-            viewTransform.rotation = _moveCalculator.SmoothRotation(moveDirection, viewTransform.rotation, rotateSpeed * Time.deltaTime);
+            viewTransform.rotation = _moveCalculator.
+                SmoothRotation(moveDirection, viewTransform.rotation, rotateSpeed * Time.deltaTime);
             animator.SetFloat(_speed, _moveCalculator.CurrentVelocity.magnitude);
         }
 
@@ -145,7 +146,7 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
             _interactiveAction?.Invoke();
         }
 
-        private void OnSelectHandledObject([CanBeNull] IHandheldObject handheldObject)
+        private void OnSelectHandledObject([CanBeNull] HandheldObject handheldObject)
         {
             if (handheldObject is null)
             {
@@ -154,8 +155,10 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
             }
 
             collisionDetector.enabled = false;
+            
             _interactiveAction = () => handheldObject.PlaceSpecimen(viewTransform.position, viewTransform.forward);
-            handheldObject.ShowCellVisualization(() => new GardenBedInHandDTO(viewTransform.position, viewTransform.forward));
+            
+            handheldObject.ShowCellVisualization(() => new SpatialEntityDTO(viewTransform.position, viewTransform.forward));
         }
     }
 }

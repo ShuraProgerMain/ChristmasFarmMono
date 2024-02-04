@@ -16,28 +16,28 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
         [SerializeField] [NotNull] private HandledObjectViewConfig handledObjectViewConfig;
         [SerializeField] [NotNull] private InHandsObjectReference[] references;
         
-        private readonly Dictionary<string, IHandheldObject> _inHandheldObjects = new();
+        private readonly Dictionary<string, HandheldObject> _inHandheldObjects = new();
         private InventoryController _inventoryController;
 
         private InHandsObjectInventoryView _handsObjectInventoryView;
         private InputActionsService _inputActionsService;
-        private HandledObjectView _handledObjectView;
+        private HandheldObjectView _handheldObjectView;
         private string _tempSelectedObject;
         private string _cachedSelectedObject;
 
-        private Action<IHandheldObject> _selectHandledObject;
+        private Action<HandheldObject> _selectHandledObject;
         private GameConfigs _gameConfigs;
 
         private Dictionary<string, int> InStockHandheldObjects => _inventoryController.InStockHandheldObjects;
 
-        private Dictionary<string, IHandheldObject> InHandheldObjects => _inHandheldObjects;
+        private Dictionary<string, HandheldObject> InHandheldObjects => _inHandheldObjects;
         
         [Inject]
         public void Construct(InventoryController inventoryController, InputActionsService inputActionsService, GameConfigs gameConfigs, IObjectResolver resolver, InGameUIManager inGameUIManager)
         {
             _gameConfigs = gameConfigs;
             
-            _handledObjectView = new HandledObjectView(handledObjectViewConfig);
+            _handheldObjectView = new HandheldObjectView(handledObjectViewConfig);
             
             foreach (var reference in references)
             {
@@ -59,7 +59,7 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
             };
         }
 
-        public void Initialize(Action<IHandheldObject> selectHandledObject)
+        public void Initialize(Action<HandheldObject> selectHandledObject)
         {
             _selectHandledObject = selectHandledObject;
         }
@@ -87,6 +87,11 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
         {
             if (!string.IsNullOrEmpty(_tempSelectedObject))
             {
+                if (!string.IsNullOrEmpty(_cachedSelectedObject))
+                {
+                    InHandheldObjects[_cachedSelectedObject].HideCellVisualization(); 
+                }
+                
                 _cachedSelectedObject = _tempSelectedObject;
                 _selectHandledObject?.Invoke(InHandheldObjects[_tempSelectedObject]);
             }
@@ -102,11 +107,11 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.InHandsObjectsInventor
         
         private void AddToDictionary(InHandsObjectReference target, IObjectResolver resolver)
         {
-            if (Activator.CreateInstance(target.HandheldObjectType) is not IHandheldObject instance)
+            if (Activator.CreateInstance(target.HandheldObjectType) is not HandheldObject instance)
                 throw new NullReferenceException("Something went wrong");
             
             resolver.Inject(instance);
-            instance.Initialize(_handledObjectView, _gameConfigs);
+            instance.Initialize(_handheldObjectView);
             _inHandheldObjects.Add(target.Identifier.Id, instance);
         }
     }

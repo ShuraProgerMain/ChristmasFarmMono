@@ -12,11 +12,11 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         internal Vector3 Move(Vector2 velocity, Transform directTransform, float speed, float deltaTime)
         {
-            _currentVelocity = Vector2.SmoothDamp(CurrentVelocity, velocity, ref _smoothInputVelocity, .05f);
+            _currentVelocity = Vector2.SmoothDamp(CurrentVelocity, velocity, ref _smoothInputVelocity, .08f);
 
-            var moveSpeed = speed * deltaTime;
-            var newPosition = (directTransform.forward * (CurrentVelocity.y * moveSpeed)) +
-                              (directTransform.right * (CurrentVelocity.x * moveSpeed));
+            var moveSpeed = (speed * velocity.magnitude) * deltaTime;
+            var newPosition = directTransform.forward * (CurrentVelocity.y * moveSpeed) +
+                              directTransform.right * (CurrentVelocity.x * moveSpeed);
             newPosition.y = 0;
 
             return newPosition;
@@ -24,31 +24,28 @@ namespace _ChristmasFarmMono.Source.Scripts.Player
 
         internal Quaternion SmoothRotation(Vector2 velocity, Quaternion characterRotation, float maxDegreesDelta)
         {
-            if (velocity.magnitude < 0.0001f)
-            {
-                return characterRotation;
-            }
+            if (velocity == Vector2.zero) return characterRotation;
+
+            var localMovementDirection = Quaternion.Euler(0f, Mathf.Atan2(velocity.x, velocity.y) 
+                                                              * Mathf.Rad2Deg, 0f) * Vector3.forward;
             
-            Quaternion targetRotation;
-
-            var localMovementDirection = new Vector3(velocity.x, 0f, velocity.y);
-
             var forward = Quaternion.Euler(0f, 0f, 0f) * Vector3.forward;
             forward.y = 0f;
             forward.Normalize();
 
-            if (Mathf.Approximately(Vector3.Dot(localMovementDirection, Vector3.forward), -1.0f))
-            {
-                targetRotation = Quaternion.LookRotation(-forward);
-            }
-            else
-            {
-                targetRotation = Quaternion.LookRotation(localMovementDirection);
-            }
+            var targetRotation = Mathf.Approximately(Vector3.Dot(localMovementDirection, Vector3.forward), -1.0f) 
+                ? Quaternion.LookRotation(-forward) 
+                : Quaternion.LookRotation(localMovementDirection);
 
-            targetRotation = Quaternion.RotateTowards(characterRotation, targetRotation, maxDegreesDelta);
+            
+            float angle = Quaternion.Angle(characterRotation, targetRotation);
+
+            float rotationSpeed = Mathf.Lerp(0, maxDegreesDelta, angle / 180f);
+            
+            targetRotation = Quaternion.RotateTowards(characterRotation, targetRotation, rotationSpeed);
 
             return targetRotation;
+
         }
     }
 }

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using _ChristmasFarmMono.Source.Scripts.Extensions;
 using UnityEngine;
 using VContainer;
 using GameConfigs = _ChristmasFarmMono.Source.Scripts.Configs.GameConfigs;
@@ -10,95 +7,108 @@ using Object = UnityEngine.Object;
 
 namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.PathTilesInHand
 {
-    public sealed class PathTileInHand : IHandheldObject
+    public sealed class PathTileInHand : HandheldObject
     {
         private const string PathTileId = "path_tile_grass";
         
-        private PathTilesItemConfig _config;
+        private PathTileGroupsConfig _config;
         private PathTilesSpawner _pathTilesSpawner;
         
-        private HandledObjectView _handledObjectView;
-
         private GameObject[] _temporaryPrefabs;
-        private HandheldControlData _currentTemporaryContainer;
+        private readonly Dictionary<PathTileType, GameObject> _temporaryTiles = new ();
 
-        private bool _canPlaceSpecimen;
-        private CancellationTokenSource _cancellationTokenSource;
+        private IPointChecker _pointChecker;
 
         [Inject]
         public void Construct(PathTilesSpawner pathTilesSpawner, GameConfigs gameConfigs)
         {
             _pathTilesSpawner = pathTilesSpawner;
+            _pointChecker = pathTilesSpawner;
+            
             _config = gameConfigs.PathTilesItemConfig;
         }
-        
-        public void Initialize(HandledObjectView handledObjectView, GameConfigs gameConfigs)
-        {
-            _handledObjectView = handledObjectView;
-            
-            _currentTemporaryContainer = handledObjectView.GetHandheldControlData(_config?.PathTileGroups
-                .First(x => x.GroupIdentifier.Id == PathTileId).PathVariants[0]);
-            _currentTemporaryContainer.ParentObject.SetActive(false);
-            _currentTemporaryContainer.ChildObject.SetActive(false);
-        }
 
-        public async void ShowCellVisualization(Func<GardenBedInHandDTO> getData)
+        public override void Initialize(HandheldObjectView handheldObjectView)
         {
-            _cancellationTokenSource = new CancellationTokenSource();
+            base.Initialize(handheldObjectView);
 
-            GardenBedInHandDTO? data = getData?.Invoke();
-            
-            if (data is null)
-                throw new ArgumentNullException($"The variable 'data' in {nameof(ShowCellVisualization)} is null");
-            
-            var position = CellCalculator.CalculateNextCellPosition(data.Value.OriginVector, data.Value.ForwardVector);
-            _currentTemporaryContainer.ParentObject.transform.position = position;
-            _currentTemporaryContainer.ParentObject.SetActive(true);
-            _currentTemporaryContainer.ChildObject.SetActive(true);
-            
-            while (Application.isPlaying && !_cancellationTokenSource.Token.IsCancellationRequested)
+            foreach (var tile in _config.PathTiles[PathTileId])
             {
-                GardenBedInHandDTO actualData = getData!.Invoke();
-                Vector3 updatedPosition = CellCalculator.CalculateNextCellPosition(actualData.OriginVector, actualData.ForwardVector);
-                updatedPosition.y = _currentTemporaryContainer.ParentObject.transform.localScale.y * .5f;
-
-                _currentTemporaryContainer.ParentObject.transform.position = Vector3.MoveTowards(_currentTemporaryContainer.ParentObject.transform.position,
-                    updatedPosition, 6.5f * Time.deltaTime);
-
-                var hasGardenBedInPoint =
-                    _pathTilesSpawner.HasPathTileAtPoint(PathTileId, new Vector3(updatedPosition.x, _currentTemporaryContainer.ChildObject.transform.localScale.y / 2f, updatedPosition.z));
-
-                _canPlaceSpecimen = !hasGardenBedInPoint;
+                var t = Object.Instantiate(tile.Value.PathVariant);
                 
-                _handledObjectView.SetStateFree(!hasGardenBedInPoint);
+                var localScale = t.transform.localScale;
                 
-                await Awaitable.NextFrameAsync();
+                localScale = new Vector3(localScale.x * .9f,
+                    localScale.y, localScale.z * .9f);
+                
+                t.transform.localScale = localScale;
+                
+                t.SetActive(false);
+                _temporaryTiles.Add(tile.Key, t);
             }
+            
+            _currentTemporaryContainer = handheldObjectView
+                .UpdateHandheldControlData(_temporaryTiles[PathTileType.Straight]);
+            
+            _currentTemporaryContainer.SetActive(false);
+            
+            UpdateActiveCell += UpdateHandheldChildObjectView;
+        }
+        
+        protected override bool HasObjectAtPoint(Vector3 point)
+        {
+            return _pointChecker.HasObjectAtPoint(PathTileId, new Vector3(point.x, 
+                _currentTemporaryContainer.ChildObject.transform.localScale.y / 4, point.z));
         }
 
-        public void HideCellVisualization()
+        protected override void SpawnAtPoint(Vector3 point, Quaternion rotation)
         {
-            _currentTemporaryContainer.ParentObject.SetActive(false);
+            _pathTilesSpawner.SpawnPathTile(PathTileId, point, Quaternion.identity);
+        }
+
+        private void UpdateHandheldChildObjectView(Vector3 point)
+        {
+            int neighbourCount = CheckHorizontal(point);
+            neighbourCount += CheckVertical(point);
+
             _currentTemporaryContainer.ChildObject.SetActive(false);
-            _cancellationTokenSource.Cancel();
+            Debug.Log($"Nearby tiles count: {neighbourCount} with Path Tiles Type: {(PathTileType)neighbourCount}");
+            _currentTemporaryContainer = _handheldObjectView
+                .UpdateHandheldControlData(_temporaryTiles[neighbourCount >= 2 ? (PathTileType)neighbourCount 
+                    : PathTileType.Straight]);
+            _currentTemporaryContainer.ChildObject.SetActive(true);
         }
 
-        public void PlaceSpecimen(Vector3 originPosition, Vector3 forward)
+        private int CheckHorizontal(Vector3 point)
         {
-            if (!_canPlaceSpecimen) return;
+            var plus = point + new Vector3(0.5f, 0, 0);
+            int result = HasObjectAtPoint(plus) ? 1 : 0;
+            var minus = point - new Vector3(0.5f, 0, 0);
+            result += HasObjectAtPoint(minus) ? 1 : 0;
             
-            originPosition.y = _currentTemporaryContainer.ChildObject.transform.localScale.y / 4;
-            var position = CellCalculator.CalculateNextCellPosition(originPosition, forward);
-            
-            _pathTilesSpawner.SpawnPathTile(PathTileId, position, Quaternion.identity);
+            return result;
+        }
+        
+        private int CheckVertical(Vector3 point)
+        {
+            int result = HasObjectAtPoint(point + new Vector3(0, 0, 0.5f)) ? 1 : 0;
+            result += HasObjectAtPoint(point - new Vector3(0, 0, 0.5f)) ? 1 : 0;
+
+            return result;
         }
     }
 
-    public sealed class PathTilesSpawner
+    public interface IPointChecker
+    {
+        public bool HasObjectAtPoint(Vector3 point);
+        public bool HasObjectAtPoint(string groupKey, Vector3 point);
+    }
+    
+    public sealed class PathTilesSpawner : IPointChecker
     {
         private Dictionary<string, Dictionary<Vector3, GameObject>> _pathInPlace = new ();
             
-        private readonly PathTilesItemConfig _config;
+        private readonly PathTileGroupsConfig _config;
         
         public event Action CreatedPathTile;
 
@@ -109,9 +119,10 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.PathTilesInHand
 
         public void SpawnPathTile(string pathTileId, Vector3 position, Quaternion rotation)
         {
-            var pathTile = _config.PathTileGroups.First(x => x.GroupIdentifier.Id == pathTileId).PathVariants[0];
-            Debug.Log($"Spawn position {position}");
+            var pathTile = _config.PathTiles[pathTileId][PathTileType.Straight].PathVariant;
+            
             var tempObject = Object.Instantiate(pathTile, position, rotation);
+            tempObject.SetActive(true);
 
             CreatedPathTile?.Invoke();
 
@@ -121,13 +132,24 @@ namespace _ChristmasFarmMono.Source.Scripts.InHandObjects.PathTilesInHand
             }
             else
             {
-                _pathInPlace.Add(pathTileId, new Dictionary<Vector3, GameObject>() { { position, tempObject } });
+                _pathInPlace.Add(pathTileId, new Dictionary<Vector3, GameObject> { { position, tempObject } });
             }
         }
 
-        public bool HasPathTileAtPoint(string pathTileId, Vector3 point)
+        public bool HasObjectAtPoint(Vector3 point)
         {
-            return _pathInPlace.Count > 0 && _pathInPlace[pathTileId].ContainsKey(point);
+            foreach (var objectsAtPoints in _pathInPlace)
+            {
+                if (objectsAtPoints.Value.ContainsKey(point))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool HasObjectAtPoint(string groupKey, Vector3 point)
+        {
+            return _pathInPlace.Count > 0 && _pathInPlace[groupKey].ContainsKey(point);
         }
     }
 }

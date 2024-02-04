@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using _ChristmasFarmMono.Source.Scripts.InHandObjects;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -22,13 +23,22 @@ namespace _ChristmasFarmMono.Source.Scripts.Configs
         }
     }
     
-    public sealed class LoadPathTileGrassInHandConfig : IConfigLoader<PathTilesItemConfig>
+    public sealed class LoadPathTileGrassInHandConfig : IConfigLoader<PathTileGroupsConfig>
     {
-        public async Task<PathTilesItemConfig> LoadConfig()
+        public async Task<PathTileGroupsConfig> LoadConfig()
         {
             PathTileGrassInHandParameters config = await Addressables.LoadAssetAsync<PathTileGrassInHandParameters>(AddressableExtensions.GameConfigs.PathTiles).Task;
 
-            return config.PathTilesItemConfig with { };
+            return new PathTileGroupsConfig()
+            {
+                PathTiles = config.PathTilesItemConfig.PathTileGroups.ToDictionary(
+                    group => group.GroupIdentifier.Id,
+                    group => group.PathVariants.ToDictionary(
+                        tile => tile.PathTileType,
+                        tile => tile))
+            };
+
+            // return config.PathTilesItemConfig with { };
         }
     }
     
@@ -49,6 +59,6 @@ namespace _ChristmasFarmMono.Source.Scripts.Configs
     public sealed class GameConfigs
     {
         [CanBeNull] public GardenBedItemConfig GardenBedItemConfig;
-        [CanBeNull] public PathTilesItemConfig PathTilesItemConfig;
+        [CanBeNull] public PathTileGroupsConfig PathTilesItemConfig;
     }
 }

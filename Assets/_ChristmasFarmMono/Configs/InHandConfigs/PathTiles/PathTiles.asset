@@ -17,8 +17,18 @@ MonoBehaviour:
     - <GroupIdentifier>k__BackingField: {fileID: 11400000, guid: 91c90cfdc13fb9341880f006d13f4972,
         type: 2}
       <PathVariants>k__BackingField:
-      - {fileID: 1994381758839850, guid: 9106145a61d8b7949bbfe03d8ccbbba5, type: 3}
-      - {fileID: 1146923170439874, guid: c04e514cd379a644395c607fc8dcacdd, type: 3}
-      - {fileID: 1065261118008754, guid: a33e76883daf7d34ebb0f89a869e69ac, type: 3}
-      - {fileID: 1889414899235944, guid: 55d5c7d4138c2d44b94d93b9db458290, type: 3}
-      - {fileID: 1611271441613840, guid: 3b36d95af75b3ff43a06630e46ce10d5, type: 3}
+      - <PathTileType>k__BackingField: 1
+        <PathVariant>k__BackingField: {fileID: 1994381758839850, guid: 9106145a61d8b7949bbfe03d8ccbbba5,
+          type: 3}
+      - <PathTileType>k__BackingField: 2
+        <PathVariant>k__BackingField: {fileID: 1889414899235944, guid: 55d5c7d4138c2d44b94d93b9db458290,
+          type: 3}
+      - <PathTileType>k__BackingField: 3
+        <PathVariant>k__BackingField: {fileID: 1146923170439874, guid: c04e514cd379a644395c607fc8dcacdd,
+          type: 3}
+      - <PathTileType>k__BackingField: 4
+        <PathVariant>k__BackingField: {fileID: 1065261118008754, guid: a33e76883daf7d34ebb0f89a869e69ac,
+          type: 3}
+      - <PathTileType>k__BackingField: 5
+        <PathVariant>k__BackingField: {fileID: 1611271441613840, guid: 3b36d95af75b3ff43a06630e46ce10d5,
+          type: 3}

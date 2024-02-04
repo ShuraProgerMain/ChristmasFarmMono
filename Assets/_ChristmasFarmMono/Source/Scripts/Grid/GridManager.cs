@@ -1,4 +1,5 @@
 using _ChristmasFarmMono.Source.Scripts.Player;
+using _ChristmasFarmMono.Source.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -16,20 +17,23 @@ namespace _ChristmasFarmMono.Source.Scripts.Grid
             var current = CalculatePlayerCellPosition();
             Gizmos.DrawCube(current, Vector3.one * .5f);
             
-            // var size = 1;
-            // var row = 4;
-            // var column = 6;
-            //
-            // Gizmos.color = Color.white;
-            // // r * column + column
-            // for (int i = 0; i < row * column; i++)
-            // {
-            //     int x = (i % column) * size;
-            //     int y = i / column;
-            //     var position1 = transform.position;
-            //     var position = new Vector3((position1.x) + x, position1.y, (position1.z) + y);
-            //     Gizmos.DrawCube(position, Vector3.one);
-            // }
+            var leftBottom = new Vector3(-.5f, 0, -.5f);
+            var size = .5f;
+            var row = 3;
+            var column = 3;
+            
+            for (int i = 0; i < row * column; i++)
+            {
+                float x = (i % column);
+                int y = i / column;
+                var position1 = transform.position;
+                var position = new Vector3((position1.x) + x, position1.y, (position1.z) + y);
+
+                var nextPoint = leftBottom.x + (size * (x));
+                var nextPointY = leftBottom.z + (size * (y));
+                Debug.Log($"Next point: {new Vector2(nextPoint, nextPointY)} with X: {x} and Y: {y}".Color(Color.green));
+                Gizmos.DrawCube(position, Vector3.one);
+            }
         }
 
         private Vector3 CalculatePlayerCellPosition()
